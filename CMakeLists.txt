@@ -13,4 +13,4 @@ set(FAMILY rp2040)
 set(BOARD pico_sdk)
 
 add_subdirectory(source)
-add_subdirectory(dev_hid_composite)
+# add_subdirectory(dev_hid_composite)

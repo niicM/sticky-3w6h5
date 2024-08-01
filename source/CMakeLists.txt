@@ -3,14 +3,12 @@ add_executable(source)
 target_sources(source PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/main.c
     ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
-    ${CMAKE_CURRENT_LIST_DIR}/usb_hid_out.c
+    ${CMAKE_CURRENT_LIST_DIR}/usb_hid_out_fn.c
 )
 
 # Make sure TinyUSB can find tusb_config.h
 target_include_directories(source PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
-
-
 
 # In addition to pico_stdlib required for common PicoSDK functionality, add dependency on tinyusb_device
 # for TinyUSB device support and tinyusb_board for the additional board support library used by the example

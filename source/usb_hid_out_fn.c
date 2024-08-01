@@ -2,17 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "pico/stdlib.h" 
 #include "bsp/board.h"
 #include "tusb.h"
-#include "pico/stdlib.h" 
 
 #include "usb_descriptors.h"
+#include "usb_hid_out_fn.h"
 
 #define BUFFER_SIZE 256
 
 char send_buffer[BUFFER_SIZE] = {0xff};
 int send_buffer_idx = -1;
-
 
 void send_keycodes(char* keys) {
     // If we are still sending previous keycodes
