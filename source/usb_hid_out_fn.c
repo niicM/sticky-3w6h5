@@ -6,6 +6,7 @@
 #include "bsp/board.h"
 #include "tusb.h"
 
+#include "layers.h"
 #include "usb_hid_out_fn.h"
 
 
@@ -13,7 +14,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //  Keyboard output
 
-// Aproach one
+// Approach one using calbacks. Too complicated compared to the simple approach
 /*
 #define BUFFER_SIZE 256
 
@@ -80,14 +81,31 @@ void send_keycode(char mod, char key, bool first) {
 
 }
 
-void send_keycodes(char* keys) {
+void send_keycodes(char* mods, char* keys) {
 
-    send_keycode(0, keys[0], true);
+    send_keycode(mods[0], keys[0], true);
 
     for(int i = 1; ; i++) {
         if (keys[i] == 0xff) break;
-        send_keycode(0, keys[i], false);
+        send_keycode(mods[i], keys[i], false);
     }
+}
+
+void send_string(char* str) {
+    int len = strlen(str);
+    char mods[len + 1];
+    char keys[len + 1];
+    int i;
+    for (i = 0; ; i++) {
+        if (str[i] == 0) break;
+        int pos = str[i] - ' ';
+        mods[i] = out_kwerty[2 * pos];
+        keys[i] = out_kwerty[(2 * pos) + 1];
+    }
+    keys[i] = 0xff;
+    // keys[len] = 0xff;
+
+    send_keycodes(mods, keys);
 }
 
 void tud_hid_report_complete_cb(uint8_t instance, uint8_t const *report, uint16_t len) { }

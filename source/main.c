@@ -7,7 +7,7 @@
 #include "bsp/board.h"
 #include "tusb.h"
 
-#include "layers.h"
+// #include "layers.h"
 #include "usb_hid_out_fn.h"
 
 void led_toggle(void)
@@ -27,18 +27,21 @@ void send_keycodes_task() {
         return; // not enough time
     start_ms += interval_ms;
 
+    send_string("Hello! Z abc ");
 
-    int n_keys = 94; 
-    char keys[95 * 2] = {0};
-    int i;
-    for (int i = 0; i < n_keys; i++) {
-        keys[2 * i] = 0;  
-        keys[(2 * i) + 1] = out_kwerty[(2 * i) + 1];
-        // keys[(2 * i) + 1] = out_dvorak[(2 * i) + 1];
-    }
-    keys[n_keys * 2] = 0x00;
-    keys[(n_keys * 2) + 1] = 0xff;
-    send_keycodes(keys);
+    // int n_keys = 94; 
+    // char mods[95] = {0};
+    // char keys[95] = {0};
+    // int i;
+    // for (int i = 0; i < n_keys; i++) {
+    //     mods[i] = out_kwerty[2 * i];
+    //     keys[i] = out_kwerty[(2 * i) + 1];
+    // }
+    // // mods[i + 1] = 0xff;
+    // keys[94] = 0xff;
+    // send_keycodes(mods, keys);
+
+
     
     // char keys[] = {
     //     0x1E, // !
