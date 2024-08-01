@@ -13,6 +13,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 //  Keyboard output
 
+// Aproach one
+/*
 #define BUFFER_SIZE 256
 
 char send_buffer[BUFFER_SIZE] = {0xff};
@@ -53,6 +55,42 @@ void tud_hid_report_complete_cb(uint8_t instance, uint8_t const *report, uint16_
         send_buffer_idx = -1;
     }
 }
+*/
+
+void send_keycode(char mod, char key, bool first) {
+    uint8_t report[6];
+
+    if (first) {
+        memset(report, 0, sizeof(report));
+        tud_hid_keyboard_report(1, 0, report);
+        sleep_ms(4);
+        tud_task();
+    }    
+
+    memset(report, 0, sizeof(report));
+    report[0] = key;
+    tud_hid_keyboard_report(1, mod, report);
+    sleep_ms(4);
+    tud_task();
+
+    memset(report, 0, sizeof(report));
+    tud_hid_keyboard_report(1, 0, report);
+    sleep_ms(4);
+    tud_task();
+
+}
+
+void send_keycodes(char* keys) {
+
+    send_keycode(0, keys[0], true);
+
+    for(int i = 1; ; i++) {
+        if (keys[i] == 0xff) break;
+        send_keycode(0, keys[i], false);
+    }
+}
+
+void tud_hid_report_complete_cb(uint8_t instance, uint8_t const *report, uint16_t len) { }
 
 void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, 
         hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize) {

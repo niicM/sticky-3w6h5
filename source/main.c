@@ -60,6 +60,10 @@ int main(void)
 {
     board_init();
     tusb_init();
+
+    // #include "pico/multicore.h"
+    // multicore_launch_core1(core1_main);
+    
     while (1)
     {
         tud_task(); // tinyusb device task
