@@ -25,19 +25,33 @@ void send_keycodes_task() {
     static uint32_t start_ms = 0;
     if (board_millis() - start_ms < interval_ms)
         return; // not enough time
-
-
-    // char keys[95 * 2] = {0};
-    // for (int i = 0; i < 94; i++) {
-    //     keys[2 * i] = 0;  
-    //     keys[(2 * i) + 1] = out_kwerty[(2 * i) + 1];
-    // }
-
-    
-    led_toggle();
     start_ms += interval_ms;
-    char keys[] = {4, 0, 5, 0, 5, 0, 0xff};
+
+
+    int n_keys = 94; 
+    char keys[95 * 2] = {0};
+    int i;
+    for (int i = 0; i < n_keys; i++) {
+        keys[2 * i] = 0;  
+        keys[(2 * i) + 1] = out_kwerty[(2 * i) + 1];
+        // keys[(2 * i) + 1] = out_dvorak[(2 * i) + 1];
+    }
+    keys[n_keys * 2] = 0x00;
+    keys[(n_keys * 2) + 1] = 0xff;
     send_keycodes(keys);
+    
+    // char keys[] = {
+    //     0x1E, // !
+    //     0x00, 0x34, // "
+    //     0x00, 0x20, // #
+    //     0x00, 0x21, // $
+    //     0x00, 0x22, 0x00,
+    //     0xff   
+    // };
+    // // char keys[] = {4, 0, 5, 0, 5, 0, 0xff};
+    // send_keycodes(keys);
+
+    led_toggle();
 }
 
 
