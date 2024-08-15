@@ -27,7 +27,7 @@ void send_keycodes_task() {
         return; // not enough time
     start_ms += interval_ms;
 
-    send_string("Hello! Z abc ");
+    send_string("Hello World! ");
 
     // int n_keys = 94; 
     // char mods[95] = {0};
