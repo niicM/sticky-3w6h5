@@ -10,6 +10,7 @@
 
 // #include "layers.h"
 #include "usb_hid_out_fn.h"
+#include "expander.h"
 
 void led_toggle(void)
 {
@@ -33,7 +34,7 @@ void led_toggle(void)
 #define MATRIX_COL_PINS_L { 11, 12, 13, 14, 15 }
 
 
-void setup() {
+void setup_gpio() {
     uint matrix_row_pins_l[ROWS] = MATRIX_ROW_PINS_L;
     uint matrix_col_pins_l[COLS] = MATRIX_COL_PINS_L;
 
@@ -62,7 +63,10 @@ void scan_l(bool grid[ROWS][COLS]) {
     for (int row = 0; row < ROWS; row++) {  
         uint gpio_row = matrix_row_pins_l[row];
         gpio_put(gpio_row, 0);
-        sleep_us(1);  // Give a microsecond to wait for the output to take effect
+        
+        // Give a microsecond to wait for the output to take effect
+        sleep_us(1); 
+        
         for (int col = 0; col < COLS; col++) {
             uint gpio_col = matrix_col_pins_l[col]; 
             bool not_pressed = gpio_get(gpio_col);
@@ -92,7 +96,8 @@ void send_keycodes_task() {
     start_ms += interval_ms;
 
     bool grid[ROWS][COLS];
-    scan_l(grid);
+    // scan_l(grid);
+    scan_r(grid);
 
     led_toggle();
 }
@@ -103,7 +108,8 @@ int main(void) {
     board_init();
     tusb_init();
     stdio_init_all();
-    setup();
+    setup_gpio();
+    setup_expander();
 
     // #include "pico/multicore.h"
     // multicore_launch_core1(core1_main);
