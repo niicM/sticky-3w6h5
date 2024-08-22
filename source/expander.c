@@ -54,12 +54,16 @@ void setup_expander() {
     // - driving : output : 0
     i2c_write_register(PCA9555_CONFIG_0, 0xFF);
     i2c_write_register(PCA9555_CONFIG_1, 0xF0);
+
+    uint8_t conf[3] = {0x06, 0xFF, 0xF0};
+    i2c_write_blocking(i2c0, PCA9555_ADDRESS, conf, 3, false);
 }
 
 
 void scan_r(bool grid[ROWS][COLS]) {
 
     send_string(".");
+    char buff[256];
 
     for (int row = 0; row < ROWS; row++) {
 
@@ -69,6 +73,9 @@ void scan_r(bool grid[ROWS][COLS]) {
         out = ~out;
         // Example for colum 1: 0000 0010
 
+        sprintf(buff, " o(%02d %02d) ", ~(1 << row), out);
+        send_string(buff);
+
         for (int col = 0; col < COLS; col++) {
             if(out & (1 << col)) {
                 grid[row][col] = true;    
@@ -76,13 +83,12 @@ void scan_r(bool grid[ROWS][COLS]) {
         }
     }
 
-    char buff[256];
-    for (int row = 0; row < ROWS; row++) {  
-        for (int col = 0; col < COLS; col++) {
-            if(grid[row][col]) {
-                sprintf(buff, " (%02d %02d) ", row, col);
-                send_string(buff);
-            }
-        }
-    }
+    // for (int row = 0; row < ROWS; row++) {  
+    //     for (int col = 0; col < COLS; col++) {
+    //         if(grid[row][col]) {
+    //             sprintf(buff, " (%02d %02d) ", row, col);
+    //             send_string(buff);
+    //         }
+    //     }
+    // }
 }
