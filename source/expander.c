@@ -68,13 +68,14 @@ void scan_r(bool grid[ROWS][COLS]) {
     for (int row = 0; row < ROWS; row++) {
 
         // Example for row 2: 1111 1011
-        i2c_write_register(PCA9555_OUTPUT_PORT_1, ~(1 << row));
+        uint8_t ports = ~(1 << row);
+        i2c_write_register(PCA9555_OUTPUT_PORT_1, ports);
         uint8_t out = i2c_read_register(PCA9555_INPUT_PORT_0);
         out = ~out;
         // Example for colum 1: 0000 0010
 
-        sprintf(buff, " o(%02d %02d) ", ~(1 << row), out);
-        send_string(buff);
+        // sprintf(buff, "o(%02x %02x) ", ports, out);
+        // send_string(buff);
 
         for (int col = 0; col < COLS; col++) {
             if(out & (1 << col)) {
@@ -83,12 +84,12 @@ void scan_r(bool grid[ROWS][COLS]) {
         }
     }
 
-    // for (int row = 0; row < ROWS; row++) {  
-    //     for (int col = 0; col < COLS; col++) {
-    //         if(grid[row][col]) {
-    //             sprintf(buff, " (%02d %02d) ", row, col);
-    //             send_string(buff);
-    //         }
-    //     }
-    // }
+    for (int row = 0; row < ROWS; row++) {  
+        for (int col = 0; col < COLS; col++) {
+            if(grid[row][col]) {
+                sprintf(buff, " (%02d %02d) ", row, col);
+                send_string(buff);
+            }
+        }
+    }
 }

@@ -95,7 +95,7 @@ void send_keycodes_task() {
         return; // not enough time
     start_ms += interval_ms;
 
-    bool grid[ROWS][COLS];
+    bool grid[ROWS][COLS] = {0};
     // scan_l(grid);
     scan_r(grid);
 
