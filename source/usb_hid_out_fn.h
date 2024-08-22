@@ -2,6 +2,8 @@
 #ifndef USB_HID_OUT_FN_H_
 #define USB_HID_OUT_FN_H_
 
+#include <stdbool.h> 
+
 // To only send one keycode.
 // For mod:
 // LC = 1, LS = 2, LA = 4, LG = 8

@@ -4,7 +4,9 @@ target_sources(source PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/main.c
     ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
     ${CMAKE_CURRENT_LIST_DIR}/usb_hid_out_fn.c
-    ${CMAKE_CURRENT_LIST_DIR}/expander.c
+    ${CMAKE_CURRENT_LIST_DIR}/input.c
+    ${CMAKE_CURRENT_LIST_DIR}/input_right.c
+    ${CMAKE_CURRENT_LIST_DIR}/input_left.c
 )
 
 # Make sure TinyUSB can find tusb_config.h

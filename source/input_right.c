@@ -7,7 +7,7 @@
 #include "hardware/i2c.h"
 
 #include "usb_hid_out_fn.h"
-#include "expander.h"
+#include "input_right.h"
 
 #define I2C_TIMEOUT 1000
 
@@ -62,7 +62,6 @@ void setup_expander() {
 
 void scan_r(bool grid[ROWS][COLS]) {
 
-    send_string(".");
     char buff[256];
 
     for (int row = 0; row < ROWS; row++) {
@@ -87,7 +86,7 @@ void scan_r(bool grid[ROWS][COLS]) {
     for (int row = 0; row < ROWS; row++) {  
         for (int col = 0; col < COLS; col++) {
             if(grid[row][col]) {
-                sprintf(buff, " (%02d %02d) ", row, col);
+                sprintf(buff, " r(%02d %02d) ", row, col);
                 send_string(buff);
             }
         }
