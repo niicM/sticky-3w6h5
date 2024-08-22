@@ -35,6 +35,10 @@ void send_keycodes_task() {
     led_toggle();
 }
 
+bool scan_callback(struct repeating_timer *t) {
+    scan();
+    return true;
+}
 
 int main(void) {
 
@@ -46,9 +50,15 @@ int main(void) {
     // #include "pico/multicore.h"
     // multicore_launch_core1(core1_main);
     
+    struct repeating_timer timer;
+    add_repeating_timer_ms(50, scan_callback, NULL, &timer);
     while (1)
     {
         tud_task(); // tinyusb device task
         send_keycodes_task();
     }
 }
+
+// static bool add_repeating_timer_ms(
+//     int32_t delay_ms, repeating_timer_callback_t callback, 
+//     void *user_data, repeating_timer_t *out)

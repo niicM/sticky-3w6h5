@@ -62,7 +62,7 @@ void setup_expander() {
 
 void scan_r(bool grid[ROWS][COLS]) {
 
-    char buff[256];
+    // char buff[256];
 
     for (int row = 0; row < ROWS; row++) {
 
@@ -83,12 +83,12 @@ void scan_r(bool grid[ROWS][COLS]) {
         }
     }
 
-    for (int row = 0; row < ROWS; row++) {  
-        for (int col = 0; col < COLS; col++) {
-            if(grid[row][col]) {
-                sprintf(buff, " r(%02d %02d) ", row, col);
-                send_string(buff);
-            }
-        }
-    }
+    // for (int row = 0; row < ROWS; row++) {  
+    //     for (int col = 0; col < COLS; col++) {
+    //         if(grid[row][col]) {
+    //             sprintf(buff, " r(%02d %02d) ", row, col);
+    //             send_string(buff);
+    //         }
+    //     }
+    // }
 }

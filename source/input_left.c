@@ -50,13 +50,13 @@ void scan_l(bool grid[ROWS][COLS]) {
         gpio_put(gpio_row, 1);
     }
 
-    char buff[256];
-    for (int row = 0; row < ROWS; row++) {  
-        for (int col = 0; col < COLS; col++) {
-            if(grid[row][col]) {
-                sprintf(buff, " l(%02d %02d) ", row, col);
-                send_string(buff);
-            }
-        }
-    }
+    // char buff[256];
+    // for (int row = 0; row < ROWS; row++) {  
+    //     for (int col = 0; col < COLS; col++) {
+    //         if(grid[row][col]) {
+    //             sprintf(buff, " l(%02d %02d) ", row, col);
+    //             send_string(buff);
+    //         }
+    //     }
+    // }
 }
