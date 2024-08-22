@@ -58,6 +58,24 @@ void tud_hid_report_complete_cb(uint8_t instance, uint8_t const *report, uint16_
 }
 */
 
+void send_at_once() {
+    uint8_t report[6] = {
+        4, 5, 6, 7, 8, 9
+    };
+    
+    uint8_t release[6] = {
+        0, 0, 0, 0, 0, 0
+    };
+    
+    tud_hid_keyboard_report(1, 0, report);
+    sleep_ms(4);
+    tud_task();
+
+    tud_hid_keyboard_report(1, 0, release);
+    sleep_ms(4);
+    tud_task();
+}
+
 void send_keycode(char mod, char key, bool first) {
     uint8_t report[6];
 

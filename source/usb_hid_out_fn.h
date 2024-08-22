@@ -16,4 +16,7 @@ void send_keycodes(char* mods, char* keys);
 
 // Null terminated C string
 void send_string(char* str);
+
+void send_at_once();
+
 #endif
