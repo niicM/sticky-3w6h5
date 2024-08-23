@@ -4,6 +4,7 @@
 
 
 #include "pico/stdlib.h" 
+#include "pico/multicore.h"
 #include "bsp/board.h"
 
 #include "tusb.h"
@@ -25,7 +26,7 @@ void led_toggle(void)
 
 
 void send_keycodes_task() {
-    const uint32_t interval_ms = 2000;
+    const uint32_t interval_ms = 50;
     static uint32_t start_ms = 0;
     if (board_millis() - start_ms < interval_ms)
         return; // not enough time
@@ -35,27 +36,38 @@ void send_keycodes_task() {
     led_toggle();
 }
 
-bool scan_callback(struct repeating_timer *t) {
-    scan();
-    return true;
-}
+// bool scan_callback(struct repeating_timer *t) {
+//     send_string(":");
+//     led_toggle();
+//     // scan();
+
+//     return true;
+// }
+
+// void core1_main() {
+
+//     // struct repeating_timer timer;
+//     // add_repeating_timer_ms(1000, scan_callback, NULL, &timer);
+//     while (1) {
+//         send_keycodes_task();
+//         // sleep_ms(500);
+//     }
+// }
 
 int main(void) {
 
     board_init();
     tusb_init();
     stdio_init_all();
-    
     setup_input();
-    // #include "pico/multicore.h"
+
     // multicore_launch_core1(core1_main);
     
-    struct repeating_timer timer;
-    add_repeating_timer_ms(50, scan_callback, NULL, &timer);
     while (1)
     {
         tud_task(); // tinyusb device task
         send_keycodes_task();
+        // sleep_ms(500);
     }
 }
 

@@ -50,7 +50,7 @@ void scan() {
     bool grid_r[ROWS][COLS] = {0};
     bool grid_l[ROWS][COLS] = {0};
 
-    send_string(".");
+    // send_string(".");
 
     scan_r(grid_r);
     scan_l(grid_l);
