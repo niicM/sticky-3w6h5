@@ -7,6 +7,8 @@ target_sources(source PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/input.c
     ${CMAKE_CURRENT_LIST_DIR}/input_right.c
     ${CMAKE_CURRENT_LIST_DIR}/input_left.c
+    ${CMAKE_CURRENT_LIST_DIR}/print_buff.c
+    ${CMAKE_CURRENT_LIST_DIR}/layouts.c
 )
 
 # Make sure TinyUSB can find tusb_config.h

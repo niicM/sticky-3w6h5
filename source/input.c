@@ -7,7 +7,6 @@
 #include "input_left.h"
 #include "input.h"
 
-bool k_down[N_KEYS];
 
 void setup_input() {
     setup_gpio();
@@ -45,11 +44,14 @@ uint8_t get_col(int pos) {
     return col;
 }
 
-void scan() {
-    char buff[128];
+void scan(struct key_du_lst* keys) {
+    static bool k_down[N_KEYS];
+
+    // char buff[128];
     bool grid_r[ROWS][COLS] = {0};
     bool grid_l[ROWS][COLS] = {0};
-
+    
+    keys->n = 0;
     // send_string(".");
 
     scan_r(grid_r);
@@ -61,13 +63,10 @@ void scan() {
         uint8_t col = get_col(i);
         bool new = grid_l[row][col] * is_left + grid_r[row][col] * !is_left;
         bool old = k_down[i];
-        if (old != new) {
-            if (new) {
-                sprintf(buff, " d(%02d) ", i);
-            } else {
-                sprintf(buff, " u(%02d) ", i);
-            }
-            send_string(buff);
+        if (old != new) { 
+            struct key_du du = { i, new };
+            keys->keys[keys->n] = du;
+            keys->n++; 
         }
         k_down[i] = new;
     }

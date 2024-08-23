@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 #include "pico/stdlib.h" 
 #include "pico/multicore.h"
 #include "bsp/board.h"
@@ -12,6 +11,7 @@
 // #include "layers.h"
 #include "usb_hid_out_fn.h"
 #include "input.h"
+#include "print_buff.h"
 
 
 void led_toggle(void)
@@ -21,10 +21,6 @@ void led_toggle(void)
     led_state = 1 - led_state; // toggle
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//  Main code
-
-
 void send_keycodes_task() {
     const uint32_t interval_ms = 50;
     static uint32_t start_ms = 0;
@@ -32,27 +28,40 @@ void send_keycodes_task() {
         return; // not enough time
     start_ms += interval_ms;
 
-    scan();
+    struct key_du_lst keys;
+    scan(&keys);
+
+
+    char buff[128];
+    for (int i = 0; i < keys.n; i++) {
+        int code = keys.keys[i].code;
+        if (keys.keys[i].is_down) {
+            sprintf(buff, " d(%02d) ", code);
+        } else {
+            sprintf(buff, " u(%02d) ", code);
+        }
+        send_string(buff);
+    }
+    
     led_toggle();
 }
 
-// bool scan_callback(struct repeating_timer *t) {
-//     send_string(":");
-//     led_toggle();
-//     // scan();
 
-//     return true;
-// }
+void test_task(struct print_buff* pb) {
+    const uint32_t interval_ms = 2000;
+    static uint32_t start_ms = 0;
+    if (board_millis() - start_ms < interval_ms)
+        return; // not enough time
+    start_ms += interval_ms;
+    
 
-// void core1_main() {
+    // send_string("o ");
+    print_buff_send_string(pb, "hey: Having one declaration. ");
+    // print_buff_advance(pb);
+    print_buff_consume(pb);
+    led_toggle();
+}
 
-//     // struct repeating_timer timer;
-//     // add_repeating_timer_ms(1000, scan_callback, NULL, &timer);
-//     while (1) {
-//         send_keycodes_task();
-//         // sleep_ms(500);
-//     }
-// }
 
 int main(void) {
 
@@ -60,17 +69,15 @@ int main(void) {
     tusb_init();
     stdio_init_all();
     setup_input();
-
-    // multicore_launch_core1(core1_main);
     
+    struct print_buff pb;
+    prit_buff_init(&pb);
+
     while (1)
     {
         tud_task(); // tinyusb device task
-        send_keycodes_task();
-        // sleep_ms(500);
+        test_task(&pb);
+        // send_keycodes_task();
+        // sleep_ms(1000);
     }
 }
-
-// static bool add_repeating_timer_ms(
-//     int32_t delay_ms, repeating_timer_callback_t callback, 
-//     void *user_data, repeating_timer_t *out)
