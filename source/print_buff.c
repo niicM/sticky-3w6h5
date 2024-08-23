@@ -67,7 +67,7 @@ void print_buff_consume(struct print_buff* b) {
     
     while (print_buff_advance(b) != 0) {
         // send_string("-");
-        sleep_ms(USB_DELAY_MS);
+        // sleep_ms(USB_DELAY_MS);
     }
 }
 

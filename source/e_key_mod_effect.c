@@ -86,6 +86,7 @@ bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
     return true;
 }
 
+
 /**
  * This function dessign is very manual and non-general by dessign.
  * If you want to keep the overal dessign but change the type of combos, you 
@@ -177,12 +178,56 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
     return true;
 }
 
+// https://github.com/y-salnikov/stm32_HID_keyboard/blob/master/usb_hid_keys.h
+#define ENTER 0x28
+#define SPACE 0x2c
+#define BACKSPACE 0x2a
+
+bool k_m_effect_special(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
+    
+    effect->effect_type =  KEY_TYPE;
+    uint8_t key_code;
+
+    switch (key_n) {
+    case 30:
+        key_code = SPACE;
+        break;
+    case 31:
+        key_code = BACKSPACE;
+        break;
+    case 32:
+        key_code = ENTER;
+        break;
+    case 33:
+        key_code = SPACE;
+        break;
+    case 34:
+        key_code = SPACE;
+        break;
+    case 35:
+        key_code = SPACE;
+        break;
+    
+    default:
+        break;
+    }
+
+    effect->payload = key_code;
+    return true;
+}
 
 /**
  * Returns false if there is no match.
  * Returns true and copies into the effect if there is a match
  */
 bool up_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
-    if (is_left(key_n)) return k_m_effect_left(mod, key_n, effect);
-    else return k_m_effect_right(mod, key_n, effect);
+    if (key_n >= 30) {
+        return k_m_effect_special(mod, key_n, effect);
+    } 
+    else if (is_left(key_n)) { 
+        return k_m_effect_left(mod, key_n, effect);
+    } 
+    else {
+        return k_m_effect_right(mod, key_n, effect);
+    }
 }

@@ -9,6 +9,10 @@ target_sources(source PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/input_left.c
     ${CMAKE_CURRENT_LIST_DIR}/print_buff.c
     ${CMAKE_CURRENT_LIST_DIR}/layouts.c
+
+    ${CMAKE_CURRENT_LIST_DIR}/e_effects.c
+    ${CMAKE_CURRENT_LIST_DIR}/e_key_mod_effect.c
+    ${CMAKE_CURRENT_LIST_DIR}/e_press_to_effect.c
 )
 
 # Make sure TinyUSB can find tusb_config.h
