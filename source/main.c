@@ -25,10 +25,10 @@ void led_toggle(void)
 
 void send_keycodes_task(struct press_to_effect* pte) {
     const uint32_t interval_ms = 50;
-    static uint32_t start_ms = 0;
-    if (board_millis() - start_ms < interval_ms)
+    static uint32_t current_ms = 0;
+    if (board_millis() - current_ms < interval_ms)
         return; // not enough time
-    start_ms += interval_ms;
+    current_ms += interval_ms;
     /////////////////////////////////////////
 
     struct effect ef;
@@ -99,7 +99,7 @@ int main(void) {
     {
         tud_task(); // tinyusb device task
         // test_task(&pb);
-        send_keycodes_task(&pte);
+        send_keycodes_task(&pte, &pb);
         // sleep_ms(1000);
     }
 }

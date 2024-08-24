@@ -72,12 +72,46 @@ bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
     // Shift
     else if (m0 == 19) {
         if (m1 == NO_KEY) {
-            ef.payload = in_layer_base_caps[key_n];
+            uint8_t k = in_layer_base_caps[key_n];
+            ef.payload = k;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    // Numbers (symbols)
+    else if (m0 == 16) {
+        if (m1 == NO_KEY) {
+            uint8_t k = in_layer_nums[key_n];
+            if (k != OOO) {
+                ef.payload = k;
+            }
+            else {
+                return false;
+            }
         } 
         else {
             return false;
         }
     }
+    
+    // More (symbols)
+    else if (m0 == 26) {
+        if (m1 == NO_KEY) {
+            uint8_t k = in_layer_msim[key_n];
+            if (k != OOO) {
+                ef.payload = k;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
     else {
         return false;
     }
@@ -114,11 +148,22 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
         if (m1 == NO_KEY) {
             ef.payload = in_layer_base_caps[key_n];
         } 
-        
-        // // Non standard
-        // else if (m1 == 3 && m2 == NO_KEY) {
-        //     ef.effect_type = NO_EFFECT;  // TODO
-        // }
+        else {
+            return false;
+        }
+    }
+
+    // Numbmers
+    else if (m0 == 13) {
+        if (m1 == NO_KEY) {
+            uint8_t k = in_layer_nums[key_n];
+            if (k != OOO) {
+                ef.payload = k;
+            }
+            else {
+                return false;
+            }
+        } 
         else {
             return false;
         }
@@ -182,6 +227,9 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
 #define ENTER 0x28
 #define SPACE 0x2c
 #define BACKSPACE 0x2a
+#define TAB 0x2b
+#define ESC 0x29
+#define CAPSLOCK 0x39
 
 bool k_m_effect_special(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     
@@ -190,7 +238,7 @@ bool k_m_effect_special(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* eff
 
     switch (key_n) {
     case 30:
-        key_code = SPACE;
+        key_code = CAPSLOCK;
         break;
     case 31:
         key_code = BACKSPACE;
@@ -199,13 +247,13 @@ bool k_m_effect_special(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* eff
         key_code = ENTER;
         break;
     case 33:
-        key_code = SPACE;
+        key_code = TAB;
         break;
     case 34:
         key_code = SPACE;
         break;
     case 35:
-        key_code = SPACE;
+        key_code = ESC;
         break;
     
     default:
