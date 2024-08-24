@@ -15,7 +15,8 @@ struct print_buff {
 };
 
 void prit_buff_init(struct print_buff* b);
-int print_buff_advance(struct print_buff* b);
+int print_buff_advance(struct print_buff* b, bool complete, uint8_t* out_mod);
 void print_buff_consume(struct print_buff* b);
 void print_buff_add_code(struct print_buff* b, uint8_t mod, uint8_t key);
 void print_buff_send_string(struct print_buff* b, char* str);
+void advance_task(struct print_buff* b);

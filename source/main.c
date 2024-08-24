@@ -23,7 +23,8 @@ void led_toggle(void)
     led_state = 1 - led_state; // toggle
 }
 
-void send_keycodes_task(struct press_to_effect* pte) {
+void send_keycodes_task(struct press_to_effect* pte, struct print_buff* pb) {
+    
     const uint32_t interval_ms = 50;
     static uint32_t current_ms = 0;
     if (board_millis() - current_ms < interval_ms)
@@ -65,17 +66,23 @@ void send_keycodes_task(struct press_to_effect* pte) {
 
 
 void test_task(struct print_buff* pb) {
-    const uint32_t interval_ms = 2000;
-    static uint32_t start_ms = 0;
-    if (board_millis() - start_ms < interval_ms)
-        return; // not enough time
+    const int interval_ms = 2000;
+    static int start_ms = 2010;
+    if (board_millis() < start_ms + interval_ms) return; // not enough time
     start_ms += interval_ms;
     
 
     // send_string("o ");
-    print_buff_send_string(pb, "hey: Having one declaration. ");
+    // print_buff_send_string(pb, "hey: Having one declaration. ");
+    
+    // char buff[128];
+    // sprintf(buff, " m: %d, s: %d, ", board_millis(), start_ms);
+    // send_string(buff);
+
+    print_buff_send_string(pb, "Hello");
     // print_buff_advance(pb);
-    print_buff_consume(pb);
+    // print_buff_consume(pb);
+
     led_toggle();
 }
 
@@ -93,13 +100,16 @@ int main(void) {
 
     struct press_to_effect pte;
     init_press_to_effect(&pte);
-
     
     while (1)
     {
         tud_task(); // tinyusb device task
-        // test_task(&pb);
-        send_keycodes_task(&pte, &pb);
+        
+        test_task(&pb);
+        // send_keycodes_task(&pte, &pb);
+        
+        advance_task(&pb);
+
         // sleep_ms(1000);
     }
 }

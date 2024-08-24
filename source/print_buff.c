@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #include "pico/stdlib.h" 
+#include "bsp/board.h"
 #include "tusb.h"
 
 // #include "layers.h"
@@ -15,7 +16,7 @@ void prit_buff_init(struct print_buff* b) {
 }
 
 
-int print_buff_advance(struct print_buff* b) {
+int print_buff_advance(struct print_buff* b, bool complete, uint8_t* out_mod) {
     
     uint8_t report[6] = {
         0, 0, 0, 0, 0, 0
@@ -52,12 +53,19 @@ int print_buff_advance(struct print_buff* b) {
     }
 
     tud_hid_keyboard_report(1, mod, report);
-    sleep_ms(USB_DELAY_MS);
-    tud_task();
 
-    tud_hid_keyboard_report(1, mod, release);
-    sleep_ms(USB_DELAY_MS);
-    tud_task();
+    if (complete) {
+        sleep_ms(USB_DELAY_MS);
+        tud_task();
+
+        tud_hid_keyboard_report(1, mod, release);
+        sleep_ms(USB_DELAY_MS);
+        tud_task();
+    }
+
+    if (out_mod) {
+        *out_mod = mod;
+    }
 
     return i;
 }
@@ -65,7 +73,7 @@ int print_buff_advance(struct print_buff* b) {
 
 void print_buff_consume(struct print_buff* b) {
     
-    while (print_buff_advance(b) != 0) {
+    while (print_buff_advance(b, true, NULL) != 0) {
         // send_string("-");
         // sleep_ms(USB_DELAY_MS);
     }
@@ -88,5 +96,45 @@ void print_buff_send_string(struct print_buff* b, char* str) {
 
         struct element el = {mod, key};
         ringbuf_put(&b->ring, &el);
+    }
+}
+
+void advance_task(struct print_buff* b) {
+
+    static bool need_cleaning = true;
+    static uint8_t last_mod = 0;
+
+    const int interval_ms = 10;
+    static int current_ms = 1000;
+    int now = board_millis();
+    if (now < current_ms + interval_ms)
+        return; // not enough time
+    // current_ms += interval_ms;
+    current_ms = now;
+    /////////////////////////////////////////
+
+    // The pattern:
+    // 1 tud_task
+    // 2 send_report with keys
+    // 3 sleep USB_DELAY_MS
+    // 4 tud_task
+    // 5 send_report with all zeros
+    // 6 sleep USB_DELAY_MS
+    // (repeat)
+
+    // send_string(".");
+    // return;
+    
+
+    tud_task();
+    if (need_cleaning) {
+        uint8_t release[6] = { 0, 0, 0, 0, 0, 0 };
+        tud_hid_keyboard_report(1, last_mod, release);
+        need_cleaning = false;
+    }
+    else {
+        // last_print_count = print_buff_advance(b, false, &last_mod); 
+        int c = print_buff_advance(b, false, &last_mod);
+        if (c) need_cleaning = true;
     }
 }
