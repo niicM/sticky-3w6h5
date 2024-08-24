@@ -37,26 +37,28 @@ void send_keycodes_task(struct press_to_effect* pte, struct print_buff* pb) {
     struct key_du_lst keys;
     scan(&keys);
 
+    bool debug_keys = false;
 
     char buff[128];
     for (int i = 0; i < keys.n; i++) {
         int code = keys.keys[i].code;
         if (keys.keys[i].is_down) {
-            sprintf(buff, " d(%02d) ", code);        
-            // send_string(buff);
-
+            if (debug_keys) {
+                sprintf(buff, " d(%02d) ", code);
+                print_buff_send_string(pb, buff);
+                // send_string(buff);
+            }
             key_down(pte, &ef, code);
         } else {
-            sprintf(buff, " u(%02d) ", code);
-            // send_string(buff);
-            
+            if(debug_keys) {
+                sprintf(buff, " u(%02d) ", code);
+                print_buff_send_string(pb, buff);
+            }
             key_up(pte, &ef, code);
-            // sprintf(buff, " %c ", ef.payload);
             if (ef.effect_type == ASCII_TYPE) {
-                sprintf(buff, "%c", ef.payload);
-                send_string(buff);
+                print_buff_send_char(pb, (char) ef.payload);
             } else {
-                send_keycode(0, ef.payload, true);
+                print_buff_send_key_code(pb, 0, ef.payload);
             }
         }
     }
@@ -105,8 +107,8 @@ int main(void) {
     {
         tud_task(); // tinyusb device task
         
-        test_task(&pb);
-        // send_keycodes_task(&pte, &pb);
+        // test_task(&pb);
+        send_keycodes_task(&pte, &pb);
         
         advance_task(&pb);
 

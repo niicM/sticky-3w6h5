@@ -85,19 +85,36 @@ void print_buff_add_code(struct print_buff* b, uint8_t mod, uint8_t key) {
     ringbuf_put(&b->ring, &el);
 }
 
+struct element char_to_el(char c) {
+    int pos = c - ' ';        
+    uint8_t mod = out_kwerty[2 * pos];
+    uint8_t key = out_kwerty[(2 * pos) + 1];
+    struct element el = {mod, key};
+    return el;
+}
 
 void print_buff_send_string(struct print_buff* b, char* str) {
     int i;
     for (i = 0; ; i++) {
-        if (str[i] == 0) break;
-        int pos = str[i] - ' ';        
-        uint8_t mod = out_kwerty[2 * pos];
-        uint8_t key = out_kwerty[(2 * pos) + 1];
-
-        struct element el = {mod, key};
+        char c = str[i];
+        if (c == 0) break;
+        struct element el = char_to_el(c);
         ringbuf_put(&b->ring, &el);
     }
 }
+
+
+void print_buff_send_char(struct print_buff* b, char c) {
+    struct element el = char_to_el(c);
+    ringbuf_put(&b->ring, &el);
+}
+
+
+void print_buff_send_key_code(struct print_buff* b, uint8_t mod, uint8_t key_code) {
+    struct element el = {mod, key_code};
+    ringbuf_put(&b->ring, &el);
+}
+
 
 void advance_task(struct print_buff* b) {
 
@@ -121,10 +138,6 @@ void advance_task(struct print_buff* b) {
     // 5 send_report with all zeros
     // 6 sleep USB_DELAY_MS
     // (repeat)
-
-    // send_string(".");
-    // return;
-    
 
     tud_task();
     if (need_cleaning) {
