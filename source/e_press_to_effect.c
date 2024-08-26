@@ -13,7 +13,9 @@
  * Returns wether there was a match,
  * Out: effect. NO_EFFECT can be the result of a match, or a result of no match
  */
-bool key_up(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
+bool key_up(
+    struct press_to_effect* pte, struct effect* effect, uint8_t key
+) {
     printf("(k: %d) ", (int) key);
     
     pte->currdown[key] = false;
@@ -36,29 +38,49 @@ bool key_up(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
             j++;
         }
     }
-    
-    bool matches = up_k_m_effect(mods, key, effect);
-    if (!matches) {
-        *effect = no_effect;
 
-        // Design choice: attempting and faillig a combo cancels the modifiers
-        for (int i = 0; i < MAX_MODS; i++) {
-            if (mods[i] != NO_KEY) {
-                pte->cancelled[mods[i]] = true;
-            }
-        } 
-        
-        return false;
-    }
-
+    // Design choice: attempting and faillig a combo also cancels the modifiers,
+    // they won't trigger an effect when released.
     for (int m = 0; m < MAX_MODS; m++) {
         int mod_key = mods[m];
         if (mod_key != NO_KEY) {
             pte->cancelled[mod_key] = true;
         }
     }
-    return true;
+
+
+    if (pte->waiting_for_release == NO_KEY) {
+        if (start_fat_match(mods, key)) {
+            pte->waiting_for_release = mods[0];
+            pte->target_key = key;
+
+            // This is simmilar to a match but it's internal. No real effect.
+            return false;
+        }
+        else {
+            return up_k_m_effect(mods, key, effect);
+        }
+    }
+    else if (pte->waiting_for_release == key) {
+        bool ret = fat_match(          // (ctrl + shit + a)
+            pte->waiting_for_release,  // 13
+            pte->target_key,           // 'a'
+            pte->collected,            // 16
+            effect
+        );
+        
+        // No more in collected mode. Let's reset the tracking.
+        memset(&pte->collected, false, N_KEYS * sizeof(bool));
+        pte->target_key = NO_KEY;
+        pte->waiting_for_release = NO_KEY;
+
+        return ret;
+    } 
+    else {
+        pte->collected[key] = !pte->collected[key];
+    }
 }
+
 
 bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
     
@@ -72,16 +94,6 @@ bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
         // total_down += (int) pte->currdown[i];
     }
 
-    // This is a system to "cancel" all the current keys when you change your
-    // mind.
-    // if (total_down > MAX_MODS) {
-    //     printf("canceling...");
-    //     for (int i = 0; i < N_KEYS; i++)
-    //     {
-    //         pte->cancelled[i] = true;
-    //     }
-    // }
-
     *effect = no_effect;
     return false;
 }
@@ -90,10 +102,13 @@ bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
 void init_press_to_effect(struct press_to_effect* pte) {
     // Don't assume any order in the struct to avoid errors.
 
-    memset(&pte->currdown, 0, N_KEYS);
-    memset(&pte->curr_affected, 0, N_KEYS * N_KEYS);
-    pte->waiting_for_release = NO_KEY;
+    memset(&pte->currdown, false, N_KEYS * sizeof(bool));
+    memset(&pte->curr_affected, false, N_KEYS * N_KEYS * sizeof(bool));
     
     // "canceled" doesn't really need to be initialed but it's good practice.
-    memset(&pte->cancelled, 0, N_KEYS); 
+    memset(&pte->cancelled, 0, N_KEYS * sizeof(uint8_t));
+
+    pte->waiting_for_release = NO_KEY;
+    pte->target_key = NO_KEY;
+    memset(&pte->collected, false, N_KEYS * sizeof(bool));
 }

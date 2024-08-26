@@ -279,3 +279,14 @@ bool up_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) 
         return k_m_effect_right(mod, key_n, effect);
     }
 }
+
+// This are the patterns that can be completed with more keys afterwards
+bool start_fat_match(uint8_t mod[MAX_MODS], uint8_t key_n) {
+    
+    return mod[0] == 13 && mod[1] == NO_KEY; 
+
+    // if (mod[0] == 13 && mod[1] == NO_KEY) {
+    //     return true;
+    // }
+    // return false;
+}

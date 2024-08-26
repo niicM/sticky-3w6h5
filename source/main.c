@@ -25,11 +25,12 @@ void led_toggle(void)
 
 void send_keycodes_task(struct press_to_effect* pte, struct print_buff* pb) {
     
-    const uint32_t interval_ms = 50;
-    static uint32_t current_ms = 0;
-    if (board_millis() - current_ms < interval_ms)
+    const int interval_ms = 40;
+    static int current_ms = 50;
+    int now = board_millis();
+    if (now < current_ms + interval_ms)
         return; // not enough time
-    current_ms += interval_ms;
+    current_ms = now;
     /////////////////////////////////////////
 
     struct effect ef;
