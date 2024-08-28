@@ -37,19 +37,30 @@ int print_buff_advance(struct print_buff* b, bool complete, uint8_t* out_mod) {
     }
 
     int i;
-    for (i = 0; i < 6; i++) {
-        cont = ringbuf_peek(&b->ring, &el);
-        if (!cont) break;
-        if (el.mod != mod) break;
 
-        bool repeated = false;
-        for (int j = 0; j < i; j++) {
-            repeated |= el.key == report[j];
-        }
-        if (repeated) break;
-        
+    // When ctr or alt or win are pressed, only send one character at a time
+    if (mod & 0xdd) {
         cont = ringbuf_get(&b->ring, &el);
-        report[i] = el.key;
+        report[0] = el.key;
+        i = 1;
+    }
+
+    // Usually we try to send as many as possible
+    else {
+        for (i = 0; i < 6; i++) {
+            cont = ringbuf_peek(&b->ring, &el);
+            if (!cont) break;
+            if (el.mod != mod) break;
+
+            bool repeated = false;
+            for (int j = 0; j < i; j++) {
+                repeated |= el.key == report[j];
+            }
+            if (repeated) break;
+            
+            cont = ringbuf_get(&b->ring, &el);
+            report[i] = el.key;
+        }
     }
 
     tud_hid_keyboard_report(1, mod, report);
@@ -80,7 +91,7 @@ void print_buff_consume(struct print_buff* b) {
 }
 
 
-void print_buff_add_code(struct print_buff* b, uint8_t mod, uint8_t key) {
+void print_buff_send_key_code(struct print_buff* b, uint8_t mod, uint8_t key) {
     struct element el = {mod, key};
     ringbuf_put(&b->ring, &el);
 }
@@ -110,9 +121,22 @@ void print_buff_send_char(struct print_buff* b, char c) {
 }
 
 
-void print_buff_send_key_code(struct print_buff* b, uint8_t mod, uint8_t key_code) {
-    struct element el = {mod, key_code};
+void print_buff_send_char_w_mod(struct print_buff* b, uint8_t mod, char c) {
+    
+    struct element el;
+    
+    el = char_to_el(c);
+
+    // If the character was upper case, keep the shift modifier
+    el.mod |= mod;
     ringbuf_put(&b->ring, &el);
+    
+    
+    if (mod & 0xdd) {
+        el.key = 0;
+        el.mod = 0;
+        ringbuf_put(&b->ring, &el);
+    }
 }
 
 

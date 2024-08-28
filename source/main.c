@@ -57,7 +57,7 @@ void send_keycodes_task(struct press_to_effect* pte, struct print_buff* pb) {
             }
             key_up(pte, &ef, code);
             if (ef.effect_type == ASCII_TYPE) {
-                print_buff_send_char(pb, (char) ef.payload);
+                print_buff_send_char_w_mod(pb, ef.ctrl_alt, (char) ef.payload);
             } else {
                 print_buff_send_key_code(pb, 0, ef.payload);
             }

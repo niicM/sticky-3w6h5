@@ -82,6 +82,23 @@ uint8_t is_left(uint8_t key) {
 //         __ __ __   __ __ __ 
 
 
+#define L_CAPS   10
+#define L_NUMS   13
+#define L_MORE   12
+
+#define R_CAPS   19
+#define R_NUMS   16
+#define R_MORE   17
+
+#define L_NORMAL_PLUS 14
+#define L_NUMS_PLUS   23
+#define L_MORE_PLUS   22
+
+#define R_NORMAL_PLUS 15
+#define R_NUMS_PLUS   26
+#define R_MORE_PLUS   27
+
+
 bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     uint8_t m0 = mod[0]; 
     uint8_t m1 = mod[1]; 
@@ -96,7 +113,7 @@ bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
     } 
 
     // Shift
-    else if (m0 == 19) {
+    else if (m0 == R_CAPS) {
         if (m1 == NO_KEY) {
             uint8_t k = in_layer_base_caps[key_n];
             ef.payload = k;
@@ -107,7 +124,7 @@ bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
     }
     
     // Numbers (symbols)
-    else if (m0 == 16) {
+    else if (m0 == R_NUMS) {
         if (m1 == NO_KEY) {
             uint8_t k = in_layer_nums[key_n];
             if (k != OOO) {
@@ -123,7 +140,7 @@ bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
     }
     
     // More (symbols)
-    else if (m0 == 26) {
+    else if (m0 == R_MORE) {
         if (m1 == NO_KEY) {
             uint8_t k = in_layer_msim[key_n];
             if (k != OOO) {
@@ -161,7 +178,7 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
     } 
 
     // Shift
-    else if (m0 == 10) {
+    else if (m0 == L_CAPS) {
         if (m1 == NO_KEY) {
             ef.payload = in_layer_base_caps[key_n];
         } 
@@ -171,7 +188,7 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
     }
 
     // Numbmers
-    else if (m0 == 13) {
+    else if (m0 == L_NUMS) {
         if (m1 == NO_KEY) {
             uint8_t k = in_layer_nums[key_n];
             if (k != OOO) {
@@ -228,18 +245,16 @@ bool up_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) 
     }
 }
 
-
-
 const uint8_t const left_ms[] = {
-    14,  // + normal
-    23,  // + nums
-    22,  // + more
+    L_NORMAL_PLUS,
+    L_NUMS_PLUS,
+    L_MORE_PLUS,
 };
 
 const uint8_t const right_ms[] = {
-    15,  // + normal
-    26,  // + nums
-    27   // + more
+    R_NORMAL_PLUS,
+    R_NUMS_PLUS,
+    R_MORE_PLUS
 };
 
 
@@ -287,10 +302,23 @@ bool finish_fat_match(
         }
     }
     
-    bool mod_alt   = collected[13] || collected[16];
-    bool mod_ctrl  = collected[12] || collected[17];
-    bool mod_win   = collected[11] || collected[18];
-    bool mod_shift = collected[10] || collected[19];
+    bool mod_alt;
+    bool mod_ctrl;
+    bool mod_win;
+    bool mod_shift;
+
+    if (is_left(target_key)) {            
+        mod_alt   = collected[16];
+        mod_ctrl  = collected[17];
+        mod_win   = collected[18];
+        mod_shift = collected[19];
+    }
+    else {            
+        mod_alt   = collected[13];
+        mod_ctrl  = collected[12];
+        mod_win   = collected[11];
+        mod_shift = collected[10];
+    }
 
     // Ctrl is implied if there are no modifiers or only shift
     mod_ctrl = mod_ctrl ^ !(mod_alt || mod_win);
