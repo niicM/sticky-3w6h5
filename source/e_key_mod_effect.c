@@ -5,7 +5,33 @@
 #include "e_effects.h"
 #include "e_press_to_effect.h"
 
+/**
+ * This function dessign is very manual and non-general by dessign.
+ * If you want to keep the overal dessign but change the type of combos, you 
+ * should modify these functions.
+ * 
+ * Trying to find a more general way of mapping keys and modifiers to effects 
+ * can add more complexity than it's worth. This approach has the benefit of 
+ * being fast too.
+ */
 
+/**
+ * This function dessign is very manual and non-general by dessign.
+ * If you want to keep the overal dessign but change the type of combos, you 
+ * should modify these functions.
+ * 
+ * Trying to find a more general way of mapping keys and modifiers to effects 
+ * can add more complexity than it's worth. This approach has the benefit of 
+ * being fast too.
+ *//**
+ * This function dessign is very manual and non-general by dessign.
+ * If you want to keep the overal dessign but change the type of combos, you 
+ * should modify these functions.
+ * 
+ * Trying to find a more general way of mapping keys and modifiers to effects 
+ * can add more complexity than it's worth. This approach has the benefit of 
+ * being fast too.
+ */
 // To denote empty possitions in the helper layout arrays.
 // Can be used as transparent, to search in other tables.
 #define OOO 0x00
@@ -121,15 +147,6 @@ bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
 }
 
 
-/**
- * This function dessign is very manual and non-general by dessign.
- * If you want to keep the overal dessign but change the type of combos, you 
- * should modify these functions.
- * 
- * Trying to find a more general way of mapping keys and modifiers to effects 
- * can add more complexity than it's worth. This approach has the benefit of 
- * being fast too.
- */
 bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     uint8_t m0 = mod[0]; 
     uint8_t m1 = mod[1]; 
@@ -169,52 +186,6 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
         }
     }
 
-    // // Shorcuts
-    // else if (11 <= m0 && m0 <= 13) {
-    //     if (m0 == 13 && m1 == NO_KEY) {
-    //         ef.ctrl_alt = CTRL;
-    //         ef.payload = in_layer_base[key_n];
-    //     }
-    //     else if (m0 == 12 && m1 == 13 && m2 == NO_KEY) {
-    //         ef.ctrl_alt = CTRL;
-    //         ef.payload = in_layer_base_caps[key_n];
-    //     }
-    //     else if (m0 == 11 && m1 == 13 && m2 == NO_KEY) {
-    //         ef.ctrl_alt = CTRL | ALT;
-    //         ef.payload = in_layer_base[key_n];
-    //     }
-    //     else if (m0 == 11 && m1 == 12 && m2 == 13 && m3 == NO_KEY) {
-    //         ef.ctrl_alt = CTRL | ALT;
-    //         ef.payload = in_layer_base_caps[key_n];
-    //     }
-    //     else {
-    //         return false; 
-    //     }
-    // } 
-
-    // // Numbers
-    // else if (21 <= m0 && m0 <= 23) {
-    //     uint8_t key = in_layer_nums[key_n];
-    //     if (key != OOO) {
-    //         ef.payload = key;            
-    //         if (m0 == 23 && m1 == NO_KEY) {}
-    //         else if (m0 == 22 && m1 == 23 && m2 == NO_KEY) { 
-    //             ef.ctrl_alt = CTRL;
-    //         } 
-    //         else if (m0 == 21 && m1 == 23 && m2 == NO_KEY) {
-    //             ef.ctrl_alt = ALT;
-    //         } 
-    //         else if (m0 == 21 && m1 == 22 && m2 == 23 && m3 == NO_KEY) {
-    //             ef.ctrl_alt = CTRL | ALT;
-    //         }
-    //         else {
-    //             return false;
-    //         }
-    //     } else {
-    //         return false;
-    //     }
-    // }
-
     else {
         return false;
     }
@@ -233,34 +204,11 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
 
 bool k_m_effect_special(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     
+
+    static const int8_t const keys[] = {CAPSLOCK, BACKSPACE, ENTER, TAB, SPACE, ESC};
+
     effect->effect_type =  KEY_TYPE;
-    uint8_t key_code;
-
-    switch (key_n) {
-    case 30:
-        key_code = CAPSLOCK;
-        break;
-    case 31:
-        key_code = BACKSPACE;
-        break;
-    case 32:
-        key_code = ENTER;
-        break;
-    case 33:
-        key_code = TAB;
-        break;
-    case 34:
-        key_code = SPACE;
-        break;
-    case 35:
-        key_code = ESC;
-        break;
-    
-    default:
-        break;
-    }
-
-    effect->payload = key_code;
+    effect->payload = keys[key_n - 30];
     return true;
 }
 
@@ -280,13 +228,81 @@ bool up_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) 
     }
 }
 
-// This are the patterns that can be completed with more keys afterwards
-bool start_fat_match(uint8_t mod[MAX_MODS], uint8_t key_n) {
-    
-    return mod[0] == 13 && mod[1] == NO_KEY; 
 
-    // if (mod[0] == 13 && mod[1] == NO_KEY) {
-    //     return true;
-    // }
-    // return false;
+
+const uint8_t const left_ms[] = {
+    14,  // + normal
+    23,  // + nums
+    22,  // + more
+};
+
+const uint8_t const right_ms[] = {
+    15,  // + normal
+    26,  // + nums
+    27   // + more
+};
+
+
+// This are the patterns that can be completed with more keys afterwards
+bool start_fat_match(uint8_t mod[MAX_MODS], uint8_t key) {
+
+    if (mod[0] == NO_KEY || mod[1] != NO_KEY) {
+        return false;
+    }
+
+    // The mod and the key are in opposite halves
+    if (is_left(key)) {
+        for (int i = 0; i < 3; i++) {
+            if (mod[0] == right_ms[i]) {
+                return true;
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < 3; i++) {
+            if (mod[0] == left_ms[i]) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
+bool finish_fat_match(
+    uint8_t mod_key, uint8_t target_key, bool collected[N_KEYS], 
+    struct effect* effect
+) {
+    char* in_layer;
+    char* layers[3] = {
+        in_layer_base, in_layer_nums, in_layer_msim
+    };
+    
+    uint8_t key;
+    for (int i = 0; i < 3; i++) {
+        if (mod_key == left_ms[i] || mod_key == right_ms[i]) {
+            key = layers[i][target_key];
+            break;
+        }
+    }
+    
+    bool mod_alt   = collected[13] || collected[16];
+    bool mod_ctrl  = collected[12] || collected[17];
+    bool mod_win   = collected[11] || collected[18];
+    bool mod_shift = collected[10] || collected[19];
+
+    // Ctrl is implied if there are no modifiers or only shift
+    mod_ctrl = mod_ctrl ^ !(mod_alt || mod_win);
+
+    uint8_t ctrl_alt = 
+        mod_ctrl * CTRL | mod_shift * SHIFT | mod_alt * ALT | mod_win * WIN;
+
+    // Consider using a default like ctrl, in this case
+    if (ctrl_alt == 0) return false;
+
+    effect->effect_type = ASCII_TYPE;
+    effect->payload = key;
+    effect->ctrl_alt = ctrl_alt;
+    return true;
 }

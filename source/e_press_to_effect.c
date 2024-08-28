@@ -16,14 +16,14 @@
 bool key_up(
     struct press_to_effect* pte, struct effect* effect, uint8_t key
 ) {
-    printf("(k: %d) ", (int) key);
+    printf("(up: %d) ", (int) key);
     
     pte->currdown[key] = false;
     // key no longer modifies any other keys
     for (int i = 0; i < N_KEYS; i++) {
         pte->curr_affected[i][key] = false;
     }
-    if (pte->cancelled[key]) {
+    if (pte->cancelled[key] && pte->waiting_for_release != key) {
         *effect = no_effect;
         return false;
     }
@@ -51,6 +51,7 @@ bool key_up(
 
     if (pte->waiting_for_release == NO_KEY) {
         if (start_fat_match(mods, key)) {
+            printf("(start fat) ");
             pte->waiting_for_release = mods[0];
             pte->target_key = key;
 
@@ -62,7 +63,11 @@ bool key_up(
         }
     }
     else if (pte->waiting_for_release == key) {
-        bool ret = fat_match(          // (ctrl + shit + a)
+        printf("(finish fat) ");
+
+
+                                       // Example:
+        bool ret = finish_fat_match(   // (ctrl + shit + a)
             pte->waiting_for_release,  // 13
             pte->target_key,           // 'a'
             pte->collected,            // 16
@@ -77,12 +82,15 @@ bool key_up(
         return ret;
     } 
     else {
+        printf("(collecting %d) ", key);
         pte->collected[key] = !pte->collected[key];
     }
 }
 
 
 bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
+    printf("(dw: %d) ", (int) key);
+
     
     // TODO Maybe here we can look for key "press" layer for things like ENTER, UP ect
 
@@ -96,6 +104,17 @@ bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
 
     *effect = no_effect;
     return false;
+}
+
+
+bool key_toggle(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
+    
+    if (pte->currdown[key]) {
+        key_up(pte, effect, key);
+    }
+    else {
+        key_down(pte, effect, key);
+    }
 }
 
 

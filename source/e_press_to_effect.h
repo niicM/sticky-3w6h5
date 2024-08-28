@@ -45,4 +45,6 @@ bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key);
 
 bool key_up(struct press_to_effect* pte, struct effect* effect, uint8_t key);
 
+bool key_toggle(struct press_to_effect* pte, struct effect* effect, uint8_t key);
+
 void init_press_to_effect(struct press_to_effect* pte);

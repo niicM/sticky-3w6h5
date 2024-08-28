@@ -2,8 +2,10 @@
 
 #include <stdint.h>
 
-#define CTRL 0x01
-#define ALT 0x04
+#define CTRL  0x01
+#define SHIFT 0x02
+#define ALT   0x04
+#define WIN   0x08
 
 enum effect_type {
 
