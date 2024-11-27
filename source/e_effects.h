@@ -20,8 +20,8 @@ enum effect_type {
     EXTENDED_DOWN,
 
     // Refered to the actuall keycode (for keys like enter, tab...)
-    KEY_TYPE,
-    KEY_DOWN,
+    TYPE_KEY,
+    PRESS_KEY,
 
     // To release all keys that are being hold down, whithout sending a new key
     CLEAR,

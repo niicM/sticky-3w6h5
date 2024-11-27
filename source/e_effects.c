@@ -15,6 +15,14 @@ void print_effect(struct effect* ef) {
         printf("Ascii type %c (%x)\n", ef->payload, ef->ctrl_alt);
         break;
 
+    case TYPE_KEY:
+        printf("Key type %x (%x)\n", ef->payload, ef->ctrl_alt);
+        break;
+
+    case PRESS_KEY:
+        printf("Key hold %x (%x)\n", ef->payload, ef->ctrl_alt);
+        break;
+
     default:
         printf("Other\n");
         break;
