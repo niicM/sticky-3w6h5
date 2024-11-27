@@ -47,3 +47,4 @@ extern struct effect no_effect;
 extern struct effect clear;
 
 void print_effect(struct effect* ef);
+void sprint_effect(struct effect* ef, char buff[128]);

@@ -28,3 +28,41 @@ void print_effect(struct effect* ef) {
         break;
     }
 }
+
+void sprint_effect(struct effect* ef, char buff[128]) {
+    
+    int advance = 0;
+
+    switch (ef->effect_type) {
+    
+    case ASCII_TYPE:
+
+        // example result:
+        //     e(ascii 'a' shift ctrl alt win)
+
+        advance = sprintf(buff, " e(ascii '%c'", ef->payload);
+        buff += advance;
+
+        if(ef->ctrl_alt & CTRL) {
+            advance = sprintf(buff, " ctrl");
+            buff += advance;
+        }
+        if(ef->ctrl_alt & ALT) {
+            advance = sprintf(buff, " alt");
+            buff += advance;
+        }
+        if(ef->ctrl_alt & WIN) {
+            advance = sprintf(buff, " win");
+            buff += advance;
+        }
+        advance = sprintf(buff, ")");
+
+        break;
+
+    default:
+
+        advance = sprintf(buff, "");
+        buff += advance;
+        break;
+    }
+}
