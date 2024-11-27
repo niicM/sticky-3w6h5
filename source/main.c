@@ -38,33 +38,54 @@ void send_keycodes_task(struct press_to_effect* pte, struct print_buff* pb) {
     struct key_du_lst keys;
     scan(&keys);
 
-    bool debug_keys = false;
+    bool debug_updown = false;
+    bool debug_effects = true;
+    bool enable_typing = false;
 
     char buff[128];
     for (int i = 0; i < keys.n; i++) {
         int code = keys.keys[i].code;
+
         if (keys.keys[i].is_down) {
-            if (debug_keys) {
+            key_down(pte, &ef, code);
+        } else {  // key up
+            key_up(pte, &ef, code);
+        }
+
+        if (debug_updown) {  // Print when a key is pressed or released
+            if (keys.keys[i].is_down) {
                 sprintf(buff, " d(%02d) ", code);
                 print_buff_send_string(pb, buff);
-                // send_string(buff);
-            }
-            key_down(pte, &ef, code);
-        } else {
-            if(debug_keys) {
+            } else {  // key up
                 sprintf(buff, " u(%02d) ", code);
                 print_buff_send_string(pb, buff);
             }
-            key_up(pte, &ef, code);
-            if (ef.effect_type == ASCII_TYPE) {
-                print_buff_send_char_w_mod(pb, ef.ctrl_alt, (char) ef.payload);
-            } else {
-                print_buff_send_key_code(pb, 0, ef.payload);
+        }
+
+        if (debug_effects) {  // Print descriptions of what would be typed
+            sprint_effect(&ef, buff);
+            print_buff_send_string(pb, buff);
+        }
+
+        if (enable_typing) {
+            if (keys.keys[i].is_down) {
+                // Down keys can have effects for keys like UP or ENTER that work
+                // in a traditional way to allow for repetitions
+                if(ef.effect_type == PRESS_KEY) {
+                    print_buff_consume(pb);
+                }
+            } else {  // key up
+                
+                if (ef.effect_type == ASCII_TYPE) {
+                    print_buff_send_char_w_mod(pb, ef.ctrl_alt, (char) ef.payload);
+                } else {
+                    print_buff_send_key_code(pb, 0, ef.payload);
+                }
             }
         }
     }
 
-    led_toggle();
+    // led_toggle();
 }
 
 

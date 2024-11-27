@@ -15,9 +15,22 @@ void prit_buff_init(struct print_buff* b) {
         &b->ring, (uint8_t*) b->buff,  BUFF_SIZE, sizeof(struct element));
 }
 
+void clear_report() {
+    uint8_t release[6] = {
+        0, 0, 0, 0, 0, 0
+    };
+    sleep_ms(USB_DELAY_MS);
+    tud_task();
+
+    tud_hid_keyboard_report(1, 0, release);
+    sleep_ms(USB_DELAY_MS);
+    tud_task();
+}
 
 int print_buff_advance(struct print_buff* b, bool complete, uint8_t* out_mod) {
     
+    static bool cleared = false;
+
     uint8_t report[6] = {
         0, 0, 0, 0, 0, 0
     };
@@ -30,9 +43,16 @@ int print_buff_advance(struct print_buff* b, bool complete, uint8_t* out_mod) {
     
     uint8_t mod = 0;
     bool cont = ringbuf_peek(&b->ring, &el);
+    
     if (!cont) {
+        // There's nothing to advance (buffer empty)
+        if (!cleared) {
+            clear_report();
+            cleared = true;
+        }
         return 0;
     } else {
+        cleared = false;
         mod = el.mod;
     }
 
@@ -52,6 +72,8 @@ int print_buff_advance(struct print_buff* b, bool complete, uint8_t* out_mod) {
             if (!cont) break;
             if (el.mod != mod) break;
 
+            // If the current key is present already in the report we can't 
+            // include it a second time 
             bool repeated = false;
             for (int j = 0; j < i; j++) {
                 repeated |= el.key == report[j];
