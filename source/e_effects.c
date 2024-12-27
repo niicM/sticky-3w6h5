@@ -7,6 +7,9 @@ struct effect clear = {CLEAR, 0, 0};
 char* not_recognized = "[not recognized]";
 
 const char *key_names[] = {
+    "volumeup",
+    "volumedown",
+    "power",
     "enter", 
     "space", 
     "backspace", 
@@ -22,10 +25,25 @@ const char *key_names[] = {
     "right", 
     "left", 
     "down", 
-    "up"
+    "up",
+    "f1", 
+    "f2", 
+    "f3", 
+    "f4", 
+    "f5", 
+    "f6", 
+    "f7", 
+    "f8", 
+    "f9", 
+    "f10", 
+    "f11", 
+    "f12"
 };
 
 const uint8_t key_values[] = {
+    0x80,
+    0x81,
+    0x66,
     0x28, // enter
     0x2c, // space
     0x2a, // backspace
@@ -41,7 +59,19 @@ const uint8_t key_values[] = {
     0x4f, // right
     0x50, // left
     0x51, // down
-    0x52  // up
+    0x52, // up
+    0x3a, // f1
+    0x3b, // f2
+    0x3c, // f3
+    0x3d, // f4
+    0x3e, // f5
+    0x3f, // f6
+    0x40, // f7
+    0x41, // f8
+    0x42, // f9
+    0x43, // f10
+    0x44, // f11
+    0x45  // f12
 };
 
 #define NUM_KEYS (sizeof(key_values) / sizeof(key_values[0]))
@@ -61,12 +91,24 @@ void print_effect(const struct effect* ef) {
 
 
 void sprint_effect(const struct effect* ef, char buff[128]) {
+    int advance = 0;
     
-    int advance = sprintf(buff, " e(");
-    buff += advance;
+    if(ef->effect_type == NO_EFFECT) {
+        advance = sprintf(buff, ".");
+        buff += advance;
+        return;
+    }
 
+
+    advance = sprintf(buff, " e(");
+    buff += advance;
+        
+    if(ef->effect_type == PRESS_KEY || ef->effect_type == ASCII_DOWN) {
+        advance = sprintf(buff, "d ");
+        buff += advance;
+    }
     if(ef->effect_type == TYPE_KEY || ef->effect_type == PRESS_KEY) {
-        advance = sprintf(buff, "key %s", key_name(ef->payload));
+        advance = sprintf(buff, "%s", key_name(ef->payload));
         buff += advance;
     }
 
