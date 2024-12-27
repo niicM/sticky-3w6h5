@@ -34,7 +34,7 @@ bool key_up(
     int j = 0;
     for (int m_key = 0; m_key < N_KEYS && j < MAX_MODS; m_key++) {
         if (pte->curr_affected[key][m_key]) {
-            printf("(m: %d) ", m_key);
+            // printf("(m: %d) ", m_key);
             mods[j] = m_key;
             j++;
         }
@@ -95,15 +95,6 @@ bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
     printf("(dw: %d) ", (int) key);
     *effect = no_effect;
 
-    // This part needs to run regardless of the matching 
-    pte->currdown[key] = true;
-    pte->cancelled[key] = false;
-    // int total_down = 0;
-    for (int i = 0; i < N_KEYS; i++) {
-        pte->curr_affected[key][i] = pte->currdown[i];
-        // total_down += (int) pte->currdown[i];
-    }
-
 
     // Here we look for key "press" layer for things like ENTER, UP ect
     // Collect all the modifiers (it should be the same as in key_up)
@@ -111,15 +102,26 @@ bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
     memset(mods, NO_KEY, MAX_MODS);
     int j = 0;
     for (int m_key = 0; m_key < N_KEYS && j < MAX_MODS; m_key++) {
-        if (pte->curr_affected[key][m_key]) {  // TODO only look at currdown
-            printf("(m: %d) ", m_key);
+        if (pte->currdown[m_key]) {  // TODO only look at currdown
+            // printf("(m: %d) ", m_key);
             mods[j] = m_key;
             j++;
         }
     }
-
     *effect = no_effect;
-    return down_k_m_effect(mods, key, effect);
+    bool down_match = down_k_m_effect(mods, key, effect);
+
+    pte->currdown[key] = true;
+    if (down_match) {
+        pte->cancelled[key] = true;
+    } else {
+        pte->cancelled[key] = false;
+        for (int i = 0; i < N_KEYS; i++) {
+            pte->curr_affected[key][i] = pte->currdown[i];
+        }
+    }
+
+    return down_match;
 }
 
 

@@ -140,9 +140,8 @@ uint8_t is_left(uint8_t key) {
 
 bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     uint8_t m0 = mod[0]; 
-    uint8_t m1 = mod[1]; 
-    uint8_t m2 = mod[2];
-    uint8_t m3 = mod[3];
+    uint8_t m1 = mod[1];
+    printf("(up left: %d %d) ", m0, m1);
 
     struct effect ef = {ASCII_TYPE, NO_KEY, 0};
 
@@ -205,9 +204,9 @@ bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
 
 bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     uint8_t m0 = mod[0]; 
-    uint8_t m1 = mod[1]; 
-    uint8_t m2 = mod[2];
-    uint8_t m3 = mod[3];
+    uint8_t m1 = mod[1];
+
+    printf("(up right: %d %d) ", m0, m1);
 
     struct effect ef = {ASCII_TYPE, NO_KEY, 0};
 
@@ -272,12 +271,9 @@ bool up_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) 
 bool down_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     uint8_t m0 = mod[0]; 
     uint8_t m1 = mod[1]; 
-    // uint8_t m2 = mod[2];
-    // uint8_t m3 = mod[3];
+    printf("(down: %d %d) ", m0, m1);
 
     struct effect ef = {PRESS_KEY, NO_KEY, 0};
-
-    printf("(m0: %d)  ", m0);
 
     // Base case
     if (m0 == NO_KEY && key_n >= 30) {
@@ -396,15 +392,15 @@ bool finish_fat_match(
     bool mod_ctrl;
     bool mod_win;
 
-    if (is_target_left) {            
-        mod_alt   = collected[16];
-        mod_ctrl  = collected[17];
-        mod_win   = collected[18];
-    }
-    else {            
+    if (is_target_left) {           
         mod_alt   = collected[13];
         mod_ctrl  = collected[12];
         mod_win   = collected[11];
+    }
+    else {
+        mod_alt   = collected[16];
+        mod_ctrl  = collected[17];
+        mod_win   = collected[18];
     }
 
     // Ctrl is implied if there are no modifiers or only shift

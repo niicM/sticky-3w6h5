@@ -4,44 +4,79 @@
 struct effect no_effect = {NO_EFFECT, 0, 0};
 struct effect clear = {CLEAR, 0, 0};
 
-void print_effect(struct effect* ef) {
-    switch (ef->effect_type)
-    {
-    case NO_EFFECT:
-        printf("No effect\n");
-        break;
+char* not_recognized = "[not recognized]";
 
-    case ASCII_TYPE:
-        printf("Ascii type %c (%x)\n", ef->payload, ef->ctrl_alt);
-        break;
+const char *key_names[] = {
+    "enter", 
+    "space", 
+    "backspace", 
+    "delete", 
+    "tab", 
+    "esc", 
+    "capslock", 
+    "numlock", 
+    "home", 
+    "end", 
+    "pageup", 
+    "pagedown", 
+    "right", 
+    "left", 
+    "down", 
+    "up"
+};
 
-    case TYPE_KEY:
-        printf("Key type %x (%x)\n", ef->payload, ef->ctrl_alt);
-        break;
+const uint8_t key_values[] = {
+    0x28, // enter
+    0x2c, // space
+    0x2a, // backspace
+    0x4c, // delete
+    0x2b, // tab
+    0x29, // esc
+    0x39, // capslock
+    0x53, // numlock
+    0x4a, // home
+    0x4d, // end
+    0x4b, // pageup
+    0x4e, // pagedown
+    0x4f, // right
+    0x50, // left
+    0x51, // down
+    0x52  // up
+};
 
-    case PRESS_KEY:
-        printf("Key hold %x (%x)\n", ef->payload, ef->ctrl_alt);
-        break;
+#define NUM_KEYS (sizeof(key_values) / sizeof(key_values[0]))
 
-    default:
-        printf("Other\n");
-        break;
+const char* key_name(uint8_t key) {
+    for (int i = 0; i < NUM_KEYS; i++) {
+        if (key_values[i] == key) return key_names[i];
     }
+    return not_recognized;
 }
 
-void sprint_effect(struct effect* ef, char buff[128]) {
+void print_effect(const struct effect* ef) {
+    char buff[128];
+    sprint_effect(ef, buff);
+    printf("%s\n", buff);
+}
+
+
+void sprint_effect(const struct effect* ef, char buff[128]) {
     
-    int advance = 0;
+    int advance = sprintf(buff, " e(");
+    buff += advance;
 
-    switch (ef->effect_type) {
-    
-    case ASCII_TYPE:
-
-        // example result:
-        //     e(ascii 'a' shift ctrl alt win)
-
-        advance = sprintf(buff, " e(ascii '%c'", ef->payload);
+    if(ef->effect_type == TYPE_KEY || ef->effect_type == PRESS_KEY) {
+        advance = sprintf(buff, "key %s", key_name(ef->payload));
         buff += advance;
+    }
+
+    else if(ef->effect_type == ASCII_TYPE || ef->effect_type == ASCII_DOWN) {
+        advance = sprintf(buff, "'%c'", ef->payload);
+        buff += advance;
+    }
+
+    if(ef->effect_type == ASCII_TYPE || ef->effect_type == ASCII_DOWN 
+        || ef->effect_type == TYPE_KEY || ef->effect_type == PRESS_KEY) {
 
         if(ef->ctrl_alt & CTRL) {
             advance = sprintf(buff, " ctrl");
@@ -55,14 +90,8 @@ void sprint_effect(struct effect* ef, char buff[128]) {
             advance = sprintf(buff, " win");
             buff += advance;
         }
-        advance = sprintf(buff, ")");
-
-        break;
-
-    default:
-
-        advance = sprintf(buff, "");
-        buff += advance;
-        break;
     }
+
+    advance = sprintf(buff, ")");
+    buff += advance;
 }

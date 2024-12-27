@@ -47,6 +47,8 @@ int print_buff_advance(struct print_buff* b, bool complete, uint8_t* out_mod) {
     if (!cont) {
         // There's nothing to advance (buffer empty)
         if (!cleared) {
+            // This is to avoid the modifier sticking after buffer is empty
+            // It was affecting the mouse after printing ')'
             clear_report();
             cleared = true;
         }
