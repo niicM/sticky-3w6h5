@@ -68,20 +68,34 @@
 #define KEY_VOLUMEDOWN 0x81
 #define KEY_POWER 0x66
 
+#define KEY_F1 0x3a // Keyboard F1
+#define KEY_F2 0x3b // Keyboard F2
+#define KEY_F3 0x3c // Keyboard F3
+#define KEY_F4 0x3d // Keyboard F4
+#define KEY_F5 0x3e // Keyboard F5
+#define KEY_F6 0x3f // Keyboard F6
+#define KEY_F7 0x40 // Keyboard F7
+#define KEY_F8 0x41 // Keyboard F8
+#define KEY_F9 0x42 // Keyboard F9
+#define KEY_F10 0x43 // Keyboard F10
+#define KEY_F11 0x44 // Keyboard F11
+#define KEY_F12 0x45 // Keyboard F12
+
+
 uint8_t f_key_codes[] = {
-    0x00,
-    0x3a, // Keyboard F1
-    0x3b, // Keyboard F2
-    0x3c, // Keyboard F3
-    0x3d, // Keyboard F4
-    0x3e, // Keyboard F5
-    0x3f, // Keyboard F6
-    0x40, // Keyboard F7
-    0x41, // Keyboard F8
-    0x42, // Keyboard F9
-    0x43, // Keyboard F10
-    0x44, // Keyboard F11
-    0x45  // Keyboard F12
+    0,
+    KEY_F1,
+    KEY_F2,
+    KEY_F3,
+    KEY_F4,
+    KEY_F5,
+    KEY_F6,
+    KEY_F7,
+    KEY_F8,
+    KEY_F9,
+    KEY_F10,
+    KEY_F11,
+    KEY_F12
 };
 
 // in_layer_x[key] = 'n' I want to type key 'n' (maybe modified by ctrl or alt)
@@ -115,14 +129,20 @@ static const int8_t const in_layer_arrows[30] = {
     OOO ,OOO, OOO, OOO, OOO,   OOO, OOO,      OOO,      KEY_PAGEDOWN, OOO
 };
 
+static const int8_t const in_layer_fkeys[30] = {
+    OOO, OOO, OOO, OOO, OOO,   0x43, 0x40, 0x41, 0x42,
+    OOO, OOO, OOO, OOO, OOO,   0x44, 0x3d, 0x3e, 0x3f,
+    OOO ,OOO, OOO, OOO, OOO,   0x45, 0x3a, 0x3b, 0x3c,
+};
+
 static const int8_t const in_layer_thumbs[] = {  // Meant to be key holds
     KEY_TAB, KEY_ENTER, KEY_ESC, KEY_BACKSPACE, KEY_SPACE, KEY_DELETE
 };
 
 static const uint8_t const in_layer_int[30] = {
-    0xff, 0x07, 0x08, 0x09, 0x10,   0x10, 0x07, 0x08, 0x09, 0xff, 
-    0xff, 0x04, 0x05, 0x06, 0x11,   0x11, 0x04, 0x05, 0x06, 0x00, 
-    0xff, 0x01, 0x02, 0x03, 0x12,   0x12, 0x01, 0x02, 0x03, 0xff
+    0xff, 0x07, 0x08, 0x09, 0x0a,   0x0a, 0x07, 0x08, 0x09, 0xff, 
+    0xff, 0x04, 0x05, 0x06, 0x0b,   0x0b, 0x04, 0x05, 0x06, 0x00, 
+    0xff, 0x01, 0x02, 0x03, 0x0c,   0x0c, 0x01, 0x02, 0x03, 0xff
 };
 
 //   00 01 02 03 04   05 06 07 08 09 
@@ -155,7 +175,7 @@ static const uint8_t const in_layer_int[30] = {
 #define R_MORE_PLUS 27
 
 #define FUN 3
-#define FUN_PLUS 2
+#define L_FUN_PLUS 2
 
 uint8_t is_left(uint8_t key) {
 
@@ -349,8 +369,7 @@ bool down_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
     return true;
 }
 
-// Note the abscense of the upper-case layer, since it falls into the base layer 
-// with shift modifier on.
+
 #define FAT_LAYERS 4
 
 const char* const fat_layers[FAT_LAYERS] = {
@@ -402,6 +421,11 @@ bool start_fat_match(uint8_t mod[MAX_MODS], uint8_t key) {
         }
     }
 
+    // Some other cases not in the layers
+    if (!is_left(key) && m0 == L_FUN_PLUS) {
+        return true;
+    }
+
     return false;
 }
 
@@ -413,7 +437,7 @@ bool finish_fat_match(
     struct effect* effect
 ) {
     char* in_layer;
-    uint8_t key;
+    uint8_t key = NO_KEY; 
 
     bool is_target_left = is_left(target_key);
 
@@ -426,11 +450,19 @@ bool finish_fat_match(
             key = fat_layers[i][target_key];
             break;
         }
+    }
 
-        // if (mod_key == left_ms[i] || mod_key == right_ms[i]) {
-        //     key = fat_layers[i][target_key];
-        //     break;
-        // }
+    if (key != NO_KEY) {
+        effect->effect_type = ASCII_TYPE;
+        effect->payload = key;
+    }
+
+    // Some other cases not in the layers
+    else {
+        effect->effect_type = TYPE_KEY;
+        if (mod_key == L_FUN_PLUS) {  // Always for now
+            effect->payload = f_key_codes[in_layer_int[target_key]];
+        }
     }
     
     bool mod_alt;
@@ -448,13 +480,22 @@ bool finish_fat_match(
         mod_win          = collected[18];
     }
 
-    uint8_t modifier_keys = 0;
-    modifier_keys |= (mod_ctr_and_alt || (!mod_alt && !mod_win))  * CTRL;
-    modifier_keys |= (mod_alt || mod_ctr_and_alt) * ALT;
-    modifier_keys |= mod_win * WIN;
+    uint8_t combinations[] = {
+        CTRL,
+        WIN,
+        CTRL | ALT,
+        WIN | CTRL,
+        ALT,
+        WIN | ALT,
+        CTRL | ALT,
+        WIN | CTRL | ALT,
+    };
+
+    uint8_t combination_idx =
+        mod_alt * 0b100 | mod_ctr_and_alt * 0b010 | mod_win * 0b001;
     
-    effect->effect_type = ASCII_TYPE;
-    effect->payload = key;
+    uint8_t modifier_keys = combinations[combination_idx];
+
     effect->ctrl_alt = modifier_keys;
     return true;
 }
