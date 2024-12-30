@@ -77,6 +77,7 @@ const uint8_t key_values[] = {
 #define NUM_KEYS (sizeof(key_values) / sizeof(key_values[0]))
 
 const char* key_name(uint8_t key) {
+    printf("k=%d\n", key);
     for (int i = 0; i < NUM_KEYS; i++) {
         if (key_values[i] == key) return key_names[i];
     }

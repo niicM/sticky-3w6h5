@@ -130,9 +130,9 @@ static const int8_t const in_layer_arrows[30] = {
 };
 
 static const int8_t const in_layer_fkeys[30] = {
-    OOO, OOO, OOO, OOO, OOO,   0x43, 0x40, 0x41, 0x42,
-    OOO, OOO, OOO, OOO, OOO,   0x44, 0x3d, 0x3e, 0x3f,
-    OOO ,OOO, OOO, OOO, OOO,   0x45, 0x3a, 0x3b, 0x3c,
+    OOO, OOO, OOO, OOO, OOO,   0x43, 0x40, 0x41, 0x42, OOO,
+    OOO, OOO, OOO, OOO, OOO,   0x44, 0x3d, 0x3e, 0x3f, OOO,
+    OOO ,OOO, OOO, OOO, OOO,   0x45, 0x3a, 0x3b, 0x3c, OOO,
 };
 
 static const int8_t const in_layer_thumbs[] = {  // Meant to be key holds
@@ -370,60 +370,83 @@ bool down_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
 }
 
 
-#define FAT_LAYERS 4
+#define FAT_LAYERS 9
+
+
+
+
+
+#define ALLOW_LEFT 1 
+#define ALLOW_RIGHT 2
+#define ALLOW_ALL 0
+
+const uint8_t const fat_layer_mods[FAT_LAYERS] = {
+    L_NORMAL_PLUS,
+    L_CAPS_PLUS,
+    L_NUMS_PLUS,
+    L_MORE_PLUS,
+    
+    R_NORMAL_PLUS,
+    R_CAPS_PLUS,
+    R_NUMS_PLUS,
+    R_MORE_PLUS,
+    
+    L_FUN_PLUS
+};
 
 const char* const fat_layers[FAT_LAYERS] = {
     in_layer_base,
     in_layer_base_caps,
     in_layer_nums, 
-    in_layer_msim
+    in_layer_arrows,
+
+    in_layer_base,
+    in_layer_base_caps,
+    in_layer_nums, 
+    in_layer_msim,
+
+    in_layer_fkeys
 };
 
-const uint8_t const left_ms[FAT_LAYERS] = {
-    L_NORMAL_PLUS,
-    L_CAPS_PLUS,
-    L_NUMS_PLUS,
-    L_MORE_PLUS
+const uint8_t const fat_layer_allow [FAT_LAYERS] = {
+    ALLOW_RIGHT, ALLOW_RIGHT, ALLOW_RIGHT, ALLOW_RIGHT, 
+    ALLOW_LEFT, ALLOW_LEFT, ALLOW_LEFT, ALLOW_LEFT,
+    ALLOW_RIGHT, // function keys
 };
 
-const uint8_t const right_ms[FAT_LAYERS] = {
-    R_NORMAL_PLUS,
-    R_CAPS_PLUS,
-    R_NUMS_PLUS,
-    R_MORE_PLUS
+const enum effect_type  const fat_layer_type [FAT_LAYERS] = {
+    ASCII_TYPE,  // in_layer_base,
+    ASCII_TYPE,  // in_layer_base_caps,
+    ASCII_TYPE,  // in_layer_nums, 
+    TYPE_KEY,  // in_layer_msim,
+
+    ASCII_TYPE,  // in_layer_base,
+    ASCII_TYPE,  // in_layer_base_caps,
+    ASCII_TYPE,  // in_layer_nums, 
+    ASCII_TYPE,  // in_layer_msim
+
+    TYPE_KEY,  // in_layer_fkeys
 };
 
 
 // This are the patterns that can be completed with more keys afterwards
-bool start_fat_match(uint8_t mod[MAX_MODS], uint8_t key) {
+bool start_fat_match(uint8_t mods[MAX_MODS], uint8_t key) {
 
-    uint8_t m0 = mod[0]; 
-    uint8_t m1 = mod[1]; 
+    uint8_t mod = mods[0]; 
+    uint8_t mod_1 = mods[1]; 
 
     // No modifiers or too many (more than one)
-    if (m0 == NO_KEY || m1 != NO_KEY) {
+    if (mod == NO_KEY || mod_1 != NO_KEY) {
         return false;
     }
+    
+    bool key_left = is_left(key);
+    int allow = key_left * ALLOW_LEFT | !key_left * ALLOW_RIGHT;
 
-    // The mod and the key are in opposite halves
-    if (is_left(key)) {
-        for (int i = 0; i < FAT_LAYERS; i++) {
-            if (m0 == right_ms[i]) {
-                return true;
-            }
+    for (int i = 0; i < FAT_LAYERS; i++) {
+        if (fat_layer_mods[i] == mod && fat_layer_allow[i] == allow) { 
+            return true;
         }
-    }
-    else {
-        for (int i = 0; i < FAT_LAYERS; i++) {
-            if (m0 == left_ms[i]) {
-                return true;
-            }
-        }
-    }
-
-    // Some other cases not in the layers
-    if (!is_left(key) && m0 == L_FUN_PLUS) {
-        return true;
     }
 
     return false;
@@ -436,40 +459,41 @@ bool finish_fat_match(
     bool collected[N_KEYS],  // The subsequent keys (determines the modifiers: alt, shift...)
     struct effect* effect
 ) {
+
     char* in_layer;
     uint8_t key = NO_KEY; 
+    uint8_t type = ASCII_TYPE;
 
-    bool is_target_left = is_left(target_key);
+    bool key_left = is_left(target_key);
+    int allow = key_left * ALLOW_LEFT | !key_left * ALLOW_RIGHT;
 
-    for (int i = 0; i < 3; i++) {
-        if (mod_key == left_ms[i] && !is_target_left) {
+    for (int i = 0; i < FAT_LAYERS; i++) {
+        bool is_allowed = 
+           fat_layer_allow[i] == allow || fat_layer_allow[i] == ALLOW_ALL;
+
+        if (is_allowed && fat_layer_mods[i] == mod_key) {
             key = fat_layers[i][target_key];
+            type = fat_layer_type[i];
+
+            // printf("match: k=%x t=%x l=%x\n", key, type, i);
+
+            // The layers are not full in general.
+            // If you type in a "hole" there is no effect.
+            if (key == OOO) {
+                *effect = no_effect;
+                return false;
+            }
+
             break;
         }
-        if (mod_key == right_ms[i] && is_target_left) {
-            key = fat_layers[i][target_key];
-            break;
-        }
     }
 
-    if (key != NO_KEY) {
-        effect->effect_type = ASCII_TYPE;
-        effect->payload = key;
-    }
-
-    // Some other cases not in the layers
-    else {
-        effect->effect_type = TYPE_KEY;
-        if (mod_key == L_FUN_PLUS) {  // Always for now
-            effect->payload = f_key_codes[in_layer_int[target_key]];
-        }
-    }
     
     bool mod_alt;
     bool mod_ctr_and_alt;
     bool mod_win;
 
-    if (is_target_left) {           
+    if (key_left) {           
         mod_alt          = collected[13];
         mod_ctr_and_alt  = collected[12];
         mod_win          = collected[11];
@@ -496,6 +520,8 @@ bool finish_fat_match(
     
     uint8_t modifier_keys = combinations[combination_idx];
 
-    effect->ctrl_alt = modifier_keys;
+    effect->ctrl_alt = modifier_keys; 
+    effect->payload = key;
+    effect->effect_type = type;
     return true;
 }

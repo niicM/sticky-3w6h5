@@ -114,6 +114,15 @@ bool key_down(struct press_to_effect* pte, struct effect* effect, uint8_t key) {
     pte->currdown[key] = true;
     if (down_match) {
         pte->cancelled[key] = true;
+        
+        // cancel the mod key(s)
+        for (int m = 0; m < MAX_MODS; m++) {
+            int mod_key = mods[m];
+            if (mod_key != NO_KEY) {
+                pte->cancelled[mod_key] = true;
+            }
+        }
+
     } else {
         pte->cancelled[key] = false;
         for (int i = 0; i < N_KEYS; i++) {
