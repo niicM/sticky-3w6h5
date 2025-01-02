@@ -129,9 +129,9 @@ static const char const in_layer_msim[N_KEYS] = {
 };
 
 static const int8_t const in_layer_arrows[N_KEYS] = {
-    OOO, OOO, OOO, OOO, OOO,   OOO, OOO,      KEY_UP,   KEY_PAGEUP,   OOO,
-    OOO, OOO, OOO, OOO, OOO,   OOO, KEY_LEFT, KEY_DOWN, KEY_RIGHT,    OOO,
-    OOO ,OOO, OOO, OOO, OOO,   OOO, OOO,      OOO,      KEY_PAGEDOWN, OOO,
+    OOO, OOO, OOO, OOO, OOO,   OOO,          OOO,      KEY_UP,   KEY_PAGEUP,   OOO,
+    OOO, OOO, OOO, OOO, OOO,   KEY_CAPSLOCK, KEY_LEFT, KEY_DOWN, KEY_RIGHT,    OOO,
+    OOO ,OOO, OOO, OOO, OOO,   OOO,          OOO,      OOO,      KEY_PAGEDOWN, OOO,
     OOO, OOO, OOO, OOO, OOO, OOO
 };
 
@@ -315,7 +315,7 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
 bool k_m_effect_thumbs(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     key_n -= 30;
     uint8_t m0 = mod[0]; 
-    // uint8_t m1 = mod[1];
+    uint8_t m1 = mod[1];
 
     struct effect ef = {TYPE_KEY, NO_KEY, 0};
 
@@ -368,7 +368,12 @@ bool down_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
     
     // Arrows
     else if (m0 == ARROWS && m1 == NO_KEY) {
-        ef.payload = in_layer_arrows[key_n];
+        if (key_n < 30) {
+            ef.payload = in_layer_arrows[key_n];
+        }
+        else {
+            ef.payload = in_layer_thumbs_type[key_n - 30];
+        }
     }
 
     else if (m0 == ARROWS_SHIFT && m1 == ARROWS && m2 == NO_KEY) {
