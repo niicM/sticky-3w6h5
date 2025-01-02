@@ -39,12 +39,17 @@ void send_keycodes_task(struct press_to_effect* pte, struct print_buff* pb) {
     scan(&keys);
 
     bool debug_updown = false;
-    bool debug_effects = true;
-    bool enable_typing = false;
+    bool debug_effects = false;
+    bool enable_typing = true;
 
     char buff[128];
     for (int i = 0; i < keys.n; i++) {
         int code = keys.keys[i].code;
+        static bool holding = false;
+        if (holding) {
+            clear_report();
+            holding = false;
+        }
 
         if (keys.keys[i].is_down) {
             key_down(pte, &ef, code);
@@ -68,19 +73,16 @@ void send_keycodes_task(struct press_to_effect* pte, struct print_buff* pb) {
         }
 
         if (enable_typing) {
-            if (keys.keys[i].is_down) {
-                // Down keys can have effects for keys like UP or ENTER that work
-                // in a traditional way to allow for repetitions
-                if(ef.effect_type == PRESS_KEY) {
-                    print_buff_consume(pb);
-                }
-            } else {  // key up
-                
-                if (ef.effect_type == ASCII_TYPE) {
-                    print_buff_send_char_w_mod(pb, ef.ctrl_alt, (char) ef.payload);
-                } else {
-                    print_buff_send_key_code(pb, 0, ef.payload);
-                }
+            if (ef.effect_type == ASCII_TYPE) {
+                print_buff_send_char_w_mod(pb, ef.ctrl_alt, (char) ef.payload);
+            }
+            else if (ef.effect_type == TYPE_KEY) {
+                print_buff_send_key_code(pb, 0, ef.payload);
+            }
+            else if (ef.effect_type == PRESS_KEY) {
+                print_buff_consume(pb);
+                press_key(ef.ctrl_alt, ef.payload);
+                holding = true;
             }
         }
     }

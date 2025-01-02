@@ -104,15 +104,23 @@ void sprint_effect(const struct effect* ef, char buff[128]) {
     advance = sprintf(buff, " e(");
     buff += advance;
         
+    // down
     if(ef->effect_type == PRESS_KEY || ef->effect_type == ASCII_DOWN) {
         advance = sprintf(buff, "d ");
         buff += advance;
     }
+
+    // keycode
     if(ef->effect_type == TYPE_KEY || ef->effect_type == PRESS_KEY) {
         advance = sprintf(buff, "%s", key_name(ef->payload));
         buff += advance;
+        if(ef->ctrl_alt != 0x00) {
+            advance = sprintf(buff, " %02x", ef->ctrl_alt);
+            buff += advance;
+        }
     }
 
+    // ascii
     else if(ef->effect_type == ASCII_TYPE || ef->effect_type == ASCII_DOWN) {
         advance = sprintf(buff, "'%c'", ef->payload);
         buff += advance;

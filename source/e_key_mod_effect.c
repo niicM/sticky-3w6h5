@@ -33,6 +33,7 @@
  * being fast too.
  */
 
+#define N_KEYS 36
 
 // To denote empty possitions in the helper layout arrays.
 // Can be used as transparent, to search in other tables.
@@ -99,50 +100,61 @@ uint8_t f_key_codes[] = {
 };
 
 // in_layer_x[key] = 'n' I want to type key 'n' (maybe modified by ctrl or alt)
-static const char const in_layer_base[30] = {
+static const char const in_layer_base[N_KEYS] = {
     ',', '.', 'p', 'y', 'x',   'f', 'g', 'c', 'r', 'l',
     'a', 'o', 'e', 'u', 'i',   'd', 'h', 't', 'n', 's',
-    '\'',';', 'q', 'j', 'k',   'b', 'm', 'w', 'v', 'z'
+    '\'',';', 'q', 'j', 'k',   'b', 'm', 'w', 'v', 'z',
+    OOO, OOO, OOO, OOO, OOO, OOO
 };
 
-static const char const in_layer_base_caps[30] = {
+static const char const in_layer_base_caps[N_KEYS] = {
     '<', '>', 'P', 'Y', 'X',   'F', 'G', 'C', 'R', 'L',
     'A', 'O', 'E', 'U', 'I',   'D', 'H', 'T', 'N', 'S',
-    '"', ':', 'Q', 'J', 'K',   'B', 'M', 'W', 'V', 'Z'
+    '"', ':', 'Q', 'J', 'K',   'B', 'M', 'W', 'V', 'Z',
+    OOO, OOO, OOO, OOO, OOO, OOO
 };
 
-static const char const in_layer_nums[30] = {
+static const char const in_layer_nums[NO_KEY] = {
     OOO, '&', '*', '?', OOO,   OOO, '7', '8', '9', OOO,
     OOO, '$', '%', '^', OOO,   OOO, '4', '5', '6', '0',
-    OOO, '!', '@', '#', OOO,   OOO, '1', '2', '3', OOO
+    OOO, '!', '@', '#', OOO,   OOO, '1', '2', '3', OOO, 
+    OOO, OOO, OOO, OOO, OOO, OOO
 };
 
-static const char const in_layer_msim[30] = {
+static const char const in_layer_msim[N_KEYS] = {
     '+', '/', '(', ')', '~',   OOO, OOO, OOO, OOO, OOO,
     '-', '\\','[', ']', '`',   OOO, OOO, OOO, OOO, OOO,
-    '_', '|', '{', '}', '=',   OOO ,OOO, OOO, OOO, OOO
+    '_', '|', '{', '}', '=',   OOO ,OOO, OOO, OOO, OOO, 
+    OOO, OOO, OOO, OOO, OOO, OOO
 };
 
-static const int8_t const in_layer_arrows[30] = {
+static const int8_t const in_layer_arrows[N_KEYS] = {
     OOO, OOO, OOO, OOO, OOO,   OOO, OOO,      KEY_UP,   KEY_PAGEUP,   OOO,
-    OOO, OOO, OOO, OOO, OOO,   OOO, KEY_LEFT, KEY_DOWN, KEY_RIGHT,    KEY_CAPSLOCK,
-    OOO ,OOO, OOO, OOO, OOO,   OOO, OOO,      OOO,      KEY_PAGEDOWN, OOO
+    OOO, OOO, OOO, OOO, OOO,   OOO, KEY_LEFT, KEY_DOWN, KEY_RIGHT,    OOO,
+    OOO ,OOO, OOO, OOO, OOO,   OOO, OOO,      OOO,      KEY_PAGEDOWN, OOO,
+    OOO, OOO, OOO, OOO, OOO, OOO
 };
 
-static const int8_t const in_layer_fkeys[30] = {
+static const int8_t const in_layer_fkeys[N_KEYS] = {
     OOO, OOO, OOO, OOO, OOO,   0x43, 0x40, 0x41, 0x42, OOO,
     OOO, OOO, OOO, OOO, OOO,   0x44, 0x3d, 0x3e, 0x3f, OOO,
     OOO ,OOO, OOO, OOO, OOO,   0x45, 0x3a, 0x3b, 0x3c, OOO,
+    OOO, OOO, OOO, OOO, OOO, OOO
 };
 
 static const int8_t const in_layer_thumbs[] = {  // Meant to be key holds
-    KEY_TAB, KEY_ENTER, KEY_ESC, KEY_BACKSPACE, KEY_SPACE, KEY_DELETE
+    KEY_TAB, OOO, KEY_ENTER, KEY_BACKSPACE, OOO, KEY_DELETE
 };
 
-static const uint8_t const in_layer_int[30] = {
+static const int8_t const in_layer_thumbs_type[] = {  // Meant to be key holds
+    OOO, KEY_ESC, OOO, OOO, KEY_SPACE, OOO
+};
+
+static const uint8_t const in_layer_int[N_KEYS] = {
     0xff, 0x07, 0x08, 0x09, 0x0a,   0x0a, 0x07, 0x08, 0x09, 0xff, 
     0xff, 0x04, 0x05, 0x06, 0x0b,   0x0b, 0x04, 0x05, 0x06, 0x00, 
-    0xff, 0x01, 0x02, 0x03, 0x0c,   0x0c, 0x01, 0x02, 0x03, 0xff
+    0xff, 0x01, 0x02, 0x03, 0x0c,   0x0c, 0x01, 0x02, 0x03, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
 //   00 01 02 03 04   05 06 07 08 09 
@@ -150,29 +162,36 @@ static const uint8_t const in_layer_int[30] = {
 //   20 21 22 23 24   25 26 27 28 29 
 //         30 31 32   33 34 35
 
-//   __ __ fp ff __   __ __ __ __ __ 
-//   cc __ mm 11 np   np 11 mm __ cc
+//   __ __ fp ff np   np __ __ __ __ 
+//   cc __ mm 11 __   __ 11 mm __ cc
 //   cp __ mp 1p __   __ 1p mp __ cp 
 //         __ __ __   __ __ __ 
 
 
 #define L_CAPS 10
 #define L_NUMS 13
-#define L_MORE 12
+// #define L_MORE 12
+#define ARROWS 31
+#define ARROWS_SHIFT 13
 
 #define R_CAPS 19
 #define R_NUMS 16
 #define R_MORE 17
 
-#define L_NORMAL_PLUS 14
+// PLUS means that they are fat shortcuts
+#define L_NORMAL_PLUS 4
 #define L_CAPS_PLUS 20
 #define L_NUMS_PLUS 23
 #define L_MORE_PLUS 22
 
-#define R_NORMAL_PLUS 15
+#define R_NORMAL_PLUS 5
 #define R_CAPS_PLUS 29
 #define R_NUMS_PLUS 26
 #define R_MORE_PLUS 27
+
+// This are for non-fat shortcuts for added convenience 
+#define L_SHORTCUTS 14
+#define R_SHORTCUTS 15
 
 #define FUN 3
 #define L_FUN_PLUS 2
@@ -192,57 +211,43 @@ bool k_m_effect_left(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect
 
     struct effect ef = {ASCII_TYPE, NO_KEY, 0};
 
+    // After this only combos of one modifier
+    if (m1 != NO_KEY) { return false; }
+
     // Base case
     if (m0 == NO_KEY) {
         ef.payload = in_layer_base[key_n];
-    } 
+    }
 
     // Shift
     else if (m0 == R_CAPS) {
-        if (m1 == NO_KEY) {
-            uint8_t k = in_layer_base_caps[key_n];
-            ef.payload = k;
-        }
-        else {
-            return false;
-        }
+        uint8_t k = in_layer_base_caps[key_n];
+        ef.payload = k;
     }
     
     // Numbers (symbols)
     else if (m0 == R_NUMS) {
-        if (m1 == NO_KEY) {
-            uint8_t k = in_layer_nums[key_n];
-            if (k != OOO) {
-                ef.payload = k;
-            }
-            else {
-                return false;
-            }
-        } 
-        else {
-            return false;
-        }
+        uint8_t k = in_layer_nums[key_n];
+        ef.payload = k;
     }
     
     // More (symbols)
     else if (m0 == R_MORE) {
-        if (m1 == NO_KEY) {
-            uint8_t k = in_layer_msim[key_n];
-            if (k != OOO) {
-                ef.payload = k;
-            }
-            else {
-                return false;
-            }
-        }
-        else {
-            return false;
-        }
+        uint8_t k = in_layer_msim[key_n];
+        ef.payload = k;
+    }
+    
+    else if (m0 == R_SHORTCUTS) {
+        uint8_t k = in_layer_base[key_n];
+        ef.payload = k;
+        ef.ctrl_alt = CTRL;
     }
 
     else {
         return false;
     }
+
+    if (ef.payload == OOO) { return false; } 
 
     *effect = ef;
     return true;
@@ -257,6 +262,10 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
 
     struct effect ef = {ASCII_TYPE, NO_KEY, 0};
 
+
+    // After this only combos of one modifier
+    if (m1 != NO_KEY) { return false; }
+
     // Base case
     if (m0 == NO_KEY) {
         ef.payload = in_layer_base[key_n];
@@ -264,56 +273,67 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
 
     // Shift
     else if (m0 == L_CAPS) {
-        if (m1 == NO_KEY) {
-            ef.payload = in_layer_base_caps[key_n];
-        } 
-        else {
-            return false;
-        }
+        ef.payload = in_layer_base_caps[key_n];
     }
 
     // Numbmers
     else if (m0 == L_NUMS) {
-        if (m1 == NO_KEY) {
-            uint8_t k = in_layer_nums[key_n];
-            if (k != OOO) {
-                ef.payload = k;
-            }
-            else {
-                return false;
-            }
-        } 
-        else {
-            return false;
-        }
+        uint8_t k = in_layer_nums[key_n];
+        ef.payload = k;
     }
     
     // Function keys
     else if (m0 == FUN) {
-        if (m1 == NO_KEY) { 
-            printf("fun ");
-            uint8_t n = in_layer_int[key_n];
-            if (n < 1 || n > 12) {
-                printf("out %d ", n);
-                return false;
-            }
-            uint8_t f_code = f_key_codes[n];
-            ef.payload = f_code;
-            ef.effect_type = TYPE_KEY;
-        }
-        else {
+        printf("fun ");
+        uint8_t n = in_layer_int[key_n];
+        if (n < 1 || n > 12) {
+            printf("out %d ", n);
             return false;
         }
+        uint8_t f_code = f_key_codes[n];
+        ef.payload = f_code;
+        ef.effect_type = TYPE_KEY;
+    }
+
+    else if (m0 == L_SHORTCUTS) {
+        uint8_t k = in_layer_base[key_n];
+        ef.payload = k;
+        ef.ctrl_alt = CTRL;
     }
 
     else {
         return false;
     }
 
+    if (ef.payload == OOO) { return false; } 
+
     *effect = ef;
     return true;
 }
 
+
+bool k_m_effect_thumbs(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
+    key_n -= 30;
+    uint8_t m0 = mod[0]; 
+    // uint8_t m1 = mod[1];
+
+    struct effect ef = {TYPE_KEY, NO_KEY, 0};
+
+    // Base case
+    if (m0 == NO_KEY) {
+        ef.payload = in_layer_thumbs_type[key_n];
+        ef.effect_type = TYPE_KEY;
+    }
+    
+    else {
+        return false; 
+    }
+
+    if (ef.payload == OOO) { return false; } 
+
+    *effect = ef;
+    return true;
+}
 
 /**
  * Returns false if there is no match.
@@ -321,8 +341,7 @@ bool k_m_effect_right(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effec
  */
 bool up_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     if (key_n >= 30) {
-        return false;
-        // return k_m_effect_special(mod, key_n, effect);
+        return k_m_effect_thumbs(mod, key_n, effect);
     } 
     else if (is_left(key_n)) { 
         return k_m_effect_left(mod, key_n, effect);
@@ -336,34 +355,32 @@ bool up_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) 
 bool down_k_m_effect(uint8_t mod[MAX_MODS], uint8_t key_n, struct effect* effect) {
     uint8_t m0 = mod[0]; 
     uint8_t m1 = mod[1]; 
+    uint8_t m2 = mod[2];
+
     printf("(down: %d %d) ", m0, m1);
 
     struct effect ef = {PRESS_KEY, NO_KEY, 0};
 
-    // Base case
+    // Base case (thumbs)
     if (m0 == NO_KEY && key_n >= 30) {
         ef.payload = in_layer_thumbs[key_n - 30];
     } 
     
     // Arrows
-    else if (m0 == L_MORE) {
-        if (m1 == NO_KEY) {
-            uint8_t k = in_layer_arrows[key_n];
-            if (k != OOO) {
-                ef.payload = k;
-            }
-            else {
-                return false;
-            }
-        } 
-        else {
-            return false;
-        }
+    else if (m0 == ARROWS && m1 == NO_KEY) {
+        ef.payload = in_layer_arrows[key_n];
+    }
+
+    else if (m0 == ARROWS_SHIFT && m1 == ARROWS && m2 == NO_KEY) {
+        ef.payload = in_layer_arrows[key_n];
+        ef.ctrl_alt = SHIFT;
     }
 
     else {
         return false;
     }
+
+    if (ef.payload == OOO) { return false; } 
 
     *effect = ef;
     return true;

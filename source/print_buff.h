@@ -22,3 +22,6 @@ void print_buff_send_char(struct print_buff* b, char c);
 void print_buff_send_char_w_mod(struct print_buff* b, uint8_t mod, char c);
 void print_buff_send_key_code(struct print_buff* b, uint8_t mod, uint8_t key);
 void advance_task(struct print_buff* b);
+
+void clear_report();
+void press_key(uint8_t mod, uint8_t key);

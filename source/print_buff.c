@@ -15,6 +15,19 @@ void prit_buff_init(struct print_buff* b) {
         &b->ring, (uint8_t*) b->buff,  BUFF_SIZE, sizeof(struct element));
 }
 
+void press_key(uint8_t mod, uint8_t key) {
+    uint8_t report[6] = {
+        key, 0, 0, 0, 0, 0
+    };
+    
+    sleep_ms(USB_DELAY_MS);
+    tud_task();
+
+    tud_hid_keyboard_report(1, mod, report);
+    sleep_ms(USB_DELAY_MS);
+    tud_task();
+}
+
 void clear_report() {
     uint8_t release[6] = {
         0, 0, 0, 0, 0, 0
