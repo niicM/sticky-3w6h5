@@ -114,7 +114,7 @@ static const char const in_layer_base_caps[N_KEYS] = {
     OOO, OOO, OOO, OOO, OOO, OOO
 };
 
-static const char const in_layer_nums[NO_KEY] = {
+static const char const in_layer_nums[N_KEYS] = {
     OOO, '&', '*', '?', OOO,   OOO, '7', '8', '9', OOO,
     OOO, '$', '%', '^', OOO,   OOO, '4', '5', '6', '0',
     OOO, '!', '@', '#', OOO,   OOO, '1', '2', '3', OOO, 
@@ -122,9 +122,9 @@ static const char const in_layer_nums[NO_KEY] = {
 };
 
 static const char const in_layer_msim[N_KEYS] = {
-    '+', '/', '(', ')', '~',   OOO, OOO, OOO, OOO, OOO,
-    '-', '\\','[', ']', '`',   OOO, OOO, OOO, OOO, OOO,
-    '_', '|', '{', '}', '=',   OOO ,OOO, OOO, OOO, OOO, 
+    '+', '\\', '[', ']', '~',   OOO, OOO, OOO, OOO, OOO,
+    '-', '/', '(', ')', '`',    OOO, OOO, OOO, OOO, OOO,
+    '_', '|', '{', '}', '=',    OOO ,OOO, OOO, OOO, OOO, 
     OOO, OOO, OOO, OOO, OOO, OOO
 };
 
@@ -163,7 +163,7 @@ static const uint8_t const in_layer_int[N_KEYS] = {
 //         30 31 32   33 34 35
 
 //   __ __ fp ff np   np __ __ __ __ 
-//   cc __ mm 11 __   __ 11 mm __ cc
+//   cc __ __ 11 __   __ 11 mm __ cc
 //   cp __ mp 1p __   __ 1p mp __ cp 
 //         __ __ __   __ __ __ 
 
